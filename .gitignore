@@ -1,0 +1,12 @@
+# Node.js
+node_modules/    
+tmp/    
+lib/key.txt
+logs/      
+plugins_backup/
+session/
+catatan update.txt
+npm-debug.log           
+yarn-error.log
+.pnpm-debug.log
+.env

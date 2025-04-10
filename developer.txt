@@ -1,0 +1,17 @@
+/*
+⚠️ PERINGATAN:
+Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
+
+╔══════════════════════════════════════════════╗
+║                🛠️ INFORMASI SCRIPT           ║
+╠══════════════════════════════════════════════╣
+║ 📦 Version    : 4.1.6                      ║
+║ 👨‍💻 Developer  : Azhari Creative              ║
+║ 🌐 Website    : https://autoresbot.com       ║
+║ 💻 GitHub     : github.com/autoresbot/resbot ║
+╚══════════════════════════════════════════════╝
+
+📌 Mulai 11 April 2025,
+Script **Autoresbot** resmi menjadi **Open Source** dan dapat digunakan secara gratis:
+🔗 https://autoresbot.com
+*/
