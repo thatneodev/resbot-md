@@ -8,24 +8,17 @@ async function handle(sock, messageInfo) {
 │
 │◧ ᴠᴇʀꜱɪᴏɴ : ${config.version}
 │◧ ᴛʏᴘᴇ ᴘʟᴜɢɪɴꜱ
-│◧ ɴᴏ ᴇɴᴄ 98%
+│◧ ɴᴏ ᴇɴᴄ 100%
 │◧ ɴᴏ ʙᴜɢ & ɴᴏ ᴇʀʀᴏʀ 
-│◧ ʜᴀʀɢᴀ ? 50ᴋ 
+│◧ ʜᴀʀɢᴀ ? free
 │◧ ꜰʀᴇᴇ ᴀᴘɪᴋᴇʏ
 │◧ ꜰʀᴇᴇ ᴜᴘᴅᴀᴛᴇ
 │◧ ʙɪꜱᴀ ʀᴜɴ ᴅɪ ᴘᴀɴᴇʟ
 ╰────────────────────────◧
 
-╭「 𝗖𝗮𝗿𝗮 𝗢𝗿𝗱𝗲𝗿 」
+╭「 Link Download 」
 
-◧ ꜱɪʟᴀᴋᴀɴ ᴍᴇʟᴀᴋᴜᴋᴀɴ ᴘᴇɴᴅᴀꜰᴛᴀʀᴀɴ ᴀᴋᴜɴ ᴘᴀᴅᴀ ᴡᴇʙꜱɪᴛᴇ https://autoresbot.com/register
-
-◧ ꜱᴇᴛᴇʟᴀʜ ɪᴛᴜ ᴋᴜɴᴊᴜɴɢɪ ʜᴀʟᴀᴍᴀɴ https://autoresbot.com/services/script
-
-◧ ʟᴀʟᴜ ᴘɪʟɪʜ ᴘᴀᴋᴇᴛ -> ꜱᴄ ʙᴏᴛ
-
-ᴊɪᴋᴀ ʙᴜᴛᴜʜ ʙᴀɴᴛᴜᴀɴ ʜᴜʙᴜɴɢɪ ᴋᴀᴍɪ ʟᴇᴡᴀᴛ ᴛᴇʟᴇɢʀᴀᴍ (ꜰᴀꜱᴛ ʀᴇꜱᴘᴏɴ)
-https://t.me/autoresbot_com`
+◧ ᴡᴇʙꜱɪᴛᴇ https://autoresbot.com/download`
 
         await reply(m, text);
 }

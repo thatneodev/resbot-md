@@ -25,7 +25,7 @@ const DESTINATION  = 'group'; // group , private, both
 const APIKEY       = 'APIKEY_GRATIS'; // apikey dari autoresbot.com (premium akun)
 const RATE_LIMIT   = 3000; // 3 detik/chat
 const SIMILARITY   = true; // Pencarian kemiripan command (true, false)
-const MODE         = 'development'; // [production, development] (jangan di ubah kecuali anda developer)
+const MODE         = 'production'; // [production, development] (jangan di ubah kecuali anda developer)
 const VERSION      = global.version; // don't edit
 
 const EMAIL        = 'autoresbot@gmail.com';
