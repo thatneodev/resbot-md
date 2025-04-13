@@ -68,7 +68,7 @@ async function handle(sock, messageInfo) {
         { text: `*Berapa hasil dari: ${result.soal.toLowerCase()}*?\n\nWaktu: ${waktuDetik} detik` },
         { quoted: message }
     );
-
+console.log(`Jawaban : ${result.jawaban}`)
     logWithTime('Math', `Jawaban : ${result.jawaban}`);
 }
 

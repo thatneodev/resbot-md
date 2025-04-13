@@ -22,7 +22,7 @@ async function handle(sock, messageInfo) {
             await reply(m,  `✅ _Apikey Aktif_
 
 ◧ _Masa Aktif Hingga :_ *${formattedDate}*
-◧ _Request per day :_ *${response.request_count}* / *${response.max_limit === 0 ? 'unlimited' : response.max_limit}*`);
+◧ _Limit :_ *${response.limit_apikey}*`);
         }else {
             await reply(m, `⛔ _Apikey Tidak Terdaftar / Expired_`);
         }

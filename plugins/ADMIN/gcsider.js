@@ -2,6 +2,7 @@ const { sendMessageWithMention }  = require('@lib/utils');
 const mess                        = require('@mess');
 const { getActiveUsers }          = require("@lib/users");
 const { getGroupMetadata }        = require("@lib/cache");
+const TOTAL_HARI_SIDER            = 30; // total sider maksimum tidak aktif 30 hari
 
 async function handle(sock, messageInfo) {
     const { remoteJid, isGroup, message, sender } = messageInfo;
@@ -17,7 +18,7 @@ async function handle(sock, messageInfo) {
             return;
         }
 
-        const listNotSider = await getActiveUsers();
+        const listNotSider = await getActiveUsers(TOTAL_HARI_SIDER);
 
         // Cek apakah tidak ada member sider di grup
         if (listNotSider.length === 0) {
@@ -41,7 +42,7 @@ async function handle(sock, messageInfo) {
 const teks_sider = `_*${countSider} Dari ${participants.length}* Anggota Grup ${groupMetadata.subject} Adalah Sider_
         
 _*Dengan Alasan :*_
-➊ _Tidak Aktif Selama lebih dari 7 hari_
+➊ _Tidak Aktif Selama lebih dari ${TOTAL_HARI_SIDER} hari_
 ➋ _Join Tapi Tidak Pernah Nimbrung_
 
 _Harap Aktif Di Grup Karena Akan Ada Pembersihan Member Setiap Saat_

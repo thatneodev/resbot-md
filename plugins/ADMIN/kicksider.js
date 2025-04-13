@@ -1,33 +1,43 @@
 const mess = require("@mess");
 const config = require("@config");
-const { getActiveUsers }          = require("@lib/users");
+const { getActiveUsers } = require("@lib/users");
 const { sendMessageWithMention } = require('@lib/utils');
 const { getGroupMetadata } = require("@lib/cache");
+
+const TOTAL_HARI_SIDER = 30; // total hari maksimum dianggap tidak aktif
+const DELAY_KICK = 3000;
 
 let inProccess = false;
 
 async function handle(sock, messageInfo) {
     const { remoteJid, isGroup, message, sender, content } = messageInfo;
-    if (!isGroup) return; // Only Grub
+    if (!isGroup) return;
 
     try {
-
-        // Mendapatkan metadata grup
         const groupMetadata = await getGroupMetadata(sock, remoteJid);
-        const participants  = groupMetadata.participants;
-        const isAdmin       = participants.some(participant => participant.id === sender && participant.admin);
-        if(!isAdmin) {
+        const participants = groupMetadata.participants;
+        const isAdmin = participants.some(p => p.id === sender && p.admin);
+
+        if (!isAdmin) {
             await sock.sendMessage(remoteJid, { text: mess.general.isAdmin }, { quoted: message });
             return;
         }
 
-        if(inProccess) {
-            await sendMessageWithMention(sock, remoteJid, `_Proses pembersihan member sider sedang berlangsung silakan tunggu hingga selesai_`, message);
-            return 
+        if (inProccess) {
+            await sendMessageWithMention(sock, remoteJid, `_Proses pembersihan member sider sedang berlangsung, silakan tunggu hingga selesai_`, message);
+            return;
         }
 
-        const listNotSider = await getActiveUsers();
-        if (listNotSider.length === 0) {
+        const listNotSider = await getActiveUsers(TOTAL_HARI_SIDER);
+
+        const memberList = participants
+            .filter(p => !listNotSider.some(active => active.id === p.id))
+            .map(p => p.id);
+
+        const countSider = memberList.length;
+        const totalMember = participants.length;
+
+        if (countSider === 0) {
             return await sock.sendMessage(
                 remoteJid,
                 { text: '📋 _Tidak ada member sider di grup ini._' },
@@ -35,29 +45,25 @@ async function handle(sock, messageInfo) {
             );
         }
 
-        const memberList = participants
-    .filter(participant => !listNotSider.some(active => active.id === participant.id))
-    .map(participant => participant.id);
+        const input = content.toLowerCase().trim();
 
-        // Hitung jumlah member sider yang ada di grup
-        const countSider = participants.filter(participant => !listNotSider.some(active => active.id === participant.id)).length;
-    
-        const totalsider = countSider;
-        const totalMember = participants.length;
+        // Tangani jika input .kicksider all atau angka
+        if (input === 'all' || (!isNaN(input) && Number(input) > 0)) {
+            const jumlahKick = input === 'all' ? memberList.length : Math.min(Number(input), memberList.length);
 
-        if (content.toLowerCase() == '-y') {
             await sock.sendMessage(remoteJid, { react: { text: "⏰", key: message.key } });
             inProccess = true;
-        
+
             let successCount = 0;
             let failedCount = 0;
-        
+
             for (const [index, member] of memberList.entries()) {
-                await new Promise(resolve => setTimeout(resolve, index * 3000));
-                
-                if (member === `${config.phone_number_bot}@s.whatsapp.net`) {
-                    continue; // Skip dan lanjut ke iterasi berikutnya
-                }
+                if (index >= jumlahKick) break;
+
+                await new Promise(resolve => setTimeout(resolve, DELAY_KICK));
+
+                if (member === `${config.phone_number_bot}@s.whatsapp.net`) continue;
+
                 try {
                     await sock.groupParticipantsUpdate(remoteJid, [member], 'remove');
                     successCount++;
@@ -65,18 +71,23 @@ async function handle(sock, messageInfo) {
                     failedCount++;
                 }
             }
-        
+
             inProccess = false;
-            if (successCount == totalsider) {
-                await sendMessageWithMention(sock, remoteJid, `_Berhasil mengeluarkan semua member sider_`, message);
+
+            if (successCount === jumlahKick) {
+                await sendMessageWithMention(sock, remoteJid, `_Berhasil mengeluarkan ${successCount} member sider_`, message);
             } else {
-                await sendMessageWithMention(sock, remoteJid, `_Berhasil mengeluarkan ${successCount} dari ${totalMember} member sider_`, message);
+                await sendMessageWithMention(sock, remoteJid, `_Berhasil mengeluarkan ${successCount} dari ${jumlahKick} member sider_`, message);
             }
+
             return;
         }
-        
-        // Kirim pesan dengan mention
-        await sendMessageWithMention(sock, remoteJid, `_Total Sider *${totalsider}* dari ${totalMember}_ \n\n_Untuk melanjutkan kick member sider, ketik *.kicksider -y*_`, message);
+
+        // Default info saat hanya ketik .kicksider tanpa argumen valid
+        await sendMessageWithMention(sock, remoteJid,
+            `_Total Sider *${countSider}* dari ${totalMember}_\n\n_Untuk melanjutkan kick member sider, ketik:_\n• *.kicksider all* — untuk keluarkan semua\n• *.kicksider <jumlah>* — untuk keluarkan sebagian\n\nContoh: *.kicksider 5*`,
+            message
+        );
 
     } catch (error) {
         console.error("Error handling kick sider command:", error);
@@ -90,7 +101,7 @@ async function handle(sock, messageInfo) {
 
 module.exports = {
     handle,
-    Commands    : ["kicksider"],
-    OnlyPremium : false,
-    OnlyOwner   : false
+    Commands: ["kicksider"],
+    OnlyPremium: false,
+    OnlyOwner: false
 };

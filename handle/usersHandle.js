@@ -59,7 +59,7 @@ async function process(sock, messageInfo) {
                         demote      : false,
                         onlyadmin   : false,
                         mute        : false,
-                        detectblacklist : true,
+                        detectblacklist : false,
                         waktusholat : false,
                         antibot     : false,
                         antitagsw   : false,

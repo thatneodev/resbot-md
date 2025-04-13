@@ -32,7 +32,9 @@ const updateWAProto               = require('@lib/update-proto');
         // Cek dan install semua module yang diperlukan
         await checkAndInstallModules([
             'wa-sticker-formatter',
-            'follow-redirects'
+            'follow-redirects',
+            'qrcode-reader',
+            'jimp'
         ]);
 
         const { start_app } = require('@lib/startup');

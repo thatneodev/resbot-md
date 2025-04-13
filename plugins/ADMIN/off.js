@@ -15,6 +15,8 @@ const featureList = [
     { name: 'antilinkv2', label: 'ᴀɴᴛɪʟɪɴᴋᴠ2' },
     { name: 'antilinkwa', label: 'ᴀɴᴛɪʟɪɴᴋᴡᴀ' },
     { name: 'antilinkwav2', label: 'ᴀɴᴛɪʟɪɴᴋᴡᴀᴠ2' },
+    { name: 'antilinkch', label: 'ᴀɴᴛɪʟɪɴᴋᴄʜ' },
+    { name: 'antilinkchv2', label: 'ᴀɴᴛɪʟɪɴᴋᴄʜᴠ2' },
     { name: 'antidelete', label: 'ᴀɴᴛɪᴅᴇʟᴇᴛᴇ' },
     { name: 'antiedit', label: 'ᴀɴᴛɪᴇᴅɪᴛ' },
     { name: 'antigame', label: 'ᴀɴᴛɪɢᴀᴍᴇ' },

@@ -16,6 +16,7 @@ const { findMessageById, editMessageById }  = require("@lib/chatManager");
 const { sendImageAsSticker } = require('@lib/exif');
 const notifiedUsers = new Set();
 const rateLimit_blacklist = {};
+const notifiedBlacklistUsers = new Set();
 
 async function process(sock, messageInfo) {
     const { m, remoteJid, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isTagComunity } = messageInfo;
@@ -79,6 +80,7 @@ async function process(sock, messageInfo) {
         }
     
         const isWhatsappLink = fullText.toLowerCase().trim().includes('chat.whatsapp.com');
+        const isWhatsappSaluran = fullText.toLowerCase().trim().includes('whatsapp.com/channel/');
         // messagesDefault.toLowerCase().trim().includes('chat.whatsapp.com')
         // Anti-link wav2 : Hapus pesan dan kick jika URL whatsapp terdeteksi
         if (!isAdmin && fitur.antilinkwav2 && isWhatsappLink) {
@@ -87,6 +89,21 @@ async function process(sock, messageInfo) {
             await kickParticipant();
             return false;
         }
+
+          // Anti-link ch : Hapus pesan jika URL whatsapp terdeteksi
+        if (!isAdmin && fitur.antilinkchv2 && isWhatsappSaluran) {
+            logWithTime('SYSTEM',`Deteksi fitur Anti-linkch V2`);
+            await deleteMessage();
+            await kickParticipant();
+            return false;
+        }
+
+        if (!isAdmin && fitur.antilinkch && isWhatsappSaluran) {
+            logWithTime('SYSTEM',`Deteksi fitur antilinkch : ${fullText}`);
+            await deleteMessage();
+        }
+
+    
 
 
         // Anti-link wa : Hapus pesan jika URL whatsapp terdeteksi
@@ -128,20 +145,24 @@ async function process(sock, messageInfo) {
             }
         }
 
-        // Detectblacklist
+       // Detect blacklist
         if (fitur.detectblacklist && user) {
-            logWithTime('SYSTEM',`Deteksi fitur Detect Blacklist`);
+            logWithTime('SYSTEM', `Deteksi fitur Detect Blacklist`);
 
             const status = user.status;
-            if(status === 'blacklist') { // user di blacklist
-                const warningMessage = `⚠️ _Peringatan Blacklist_ \n\n@${sender.split('@')[0]} Telah di blacklist` ;
-                if(warningMessage) {
+            const userId = sender.split('@')[0]; // Mengambil ID pengguna
+
+            if (status === 'blacklist') {
+                if (!notifiedBlacklistUsers.has(userId)) {
+                    const warningMessage = `⚠️ _Peringatan Blacklist_ \n\n@${userId} Telah di blacklist`;
                     await sendText(warningMessage, true);
-                    logWithTime(pushName, `User sedang di blacklist`)
+                    logWithTime(pushName, `User sedang di blacklist`);
+                    notifiedBlacklistUsers.add(userId); // Tandai sebagai sudah diberi notifikasi
+                } else {
+                    logWithTime(pushName, `User blacklist sudah diberi notifikasi sebelumnya`);
                 }
                 return false;
             }
-            
         }
 
         if(fitur.detectblacklist && fitur.detectblacklist2) {
