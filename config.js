@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.1.6
+║ 📦 Version   : 4.1.7
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub     : github.com/autoresbot/resbot ║
