@@ -14,6 +14,7 @@ const { getGroupMetadata }      = require("@lib/cache");
 const { logWithTime, isUrlInText, toText, sendMessageWithMention }    = require('@lib/utils');
 const { findMessageById, editMessageById }  = require("@lib/chatManager");
 const { sendImageAsSticker } = require('@lib/exif');
+const { Console } = require("console");
 const notifiedUsers = new Set();
 const rateLimit_blacklist = {};
 const notifiedBlacklistUsers = new Set();
@@ -103,8 +104,6 @@ async function process(sock, messageInfo) {
             await deleteMessage();
         }
 
-    
-
 
         // Anti-link wa : Hapus pesan jika URL whatsapp terdeteksi
         if (!isAdmin && fitur.antilinkwa && isWhatsappLink) {
@@ -125,14 +124,6 @@ async function process(sock, messageInfo) {
             logWithTime('SYSTEM',`Deteksi fitur antilink`);
             await deleteMessage();
             return false;
-        }
-
-        
-        
-        if (rateLimit_blacklist[sender] && now - rateLimit_blacklist[sender] < 5000) {
-            return true;
-        }else {
-            rateLimit_blacklist[sender] = now; 
         }
 
          // Detectblacklist2
@@ -172,8 +163,6 @@ async function process(sock, messageInfo) {
             }
             
         }
-
-
 
      // Deteksi badword: 
      if (!isAdmin && fitur.badwordv3 && command !== 'delbadword') {
@@ -415,15 +404,19 @@ async function process(sock, messageInfo) {
 
          // Deteksi anti-spam
         if (!isAdmin && typeof fitur.antispamchat === "boolean" && fitur.antispamchat) {
+    
             const result = spamDetection(sender);
-            
             if (result.status === 'warning') {
                 if (mess.handler.antispamchat) {
                     let warningMessage = mess.handler.antispamchat
                         .replace('@sender', `@${sender.split('@')[0]}`)
                         .replace('@warning', result.totalWarnings)
                         .replace('@totalwarning', config.SPAM.warning);
-                    await sendText(warningMessage, true);
+                    try {
+                        await sendText(warningMessage, true);
+                    } catch (err) {
+                        console.error('Gagal kirim pesan warning:', err)
+                    }
                 }
                 return false;
             } 
@@ -567,7 +560,12 @@ async function process(sock, messageInfo) {
             return false;
         }
 
-        
+
+        if (rateLimit_blacklist[sender] && now - rateLimit_blacklist[sender] < 5000) {
+            return true;
+        }else {
+            rateLimit_blacklist[sender] = now; 
+        }
 
     } catch (error) {
         console.error("Terjadi kesalahan pada proses Handler.js:", error.message);

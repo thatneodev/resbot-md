@@ -3,18 +3,25 @@ const { getGroupMetadata } = require("@lib/cache");
 const mess = require('@mess');
 
 async function handle(sock, messageInfo) {
-    const { remoteJid, message, content, sender, command, prefix } = messageInfo;
+    const { remoteJid,isGroup, message, content, sender, command, prefix } = messageInfo;
 
     try {
-        
-        // Mendapatkan metadata grup
-        const groupMetadata = await getGroupMetadata(sock, remoteJid);
-        const participants  = groupMetadata.participants;
-        const isAdmin       = participants.some(participant => participant.id === sender && participant.admin);
-        if(!isAdmin) {
-            await sock.sendMessage(remoteJid, { text: mess.general.isAdmin }, { quoted: message });
-            return;
+        let idList = remoteJid;
+
+        if(!isGroup) { // Chat Pribadi
+            idList = 'owner';
+        }else {
+                // Mendapatkan metadata grup
+                const groupMetadata = await getGroupMetadata(sock, remoteJid);
+                const participants  = groupMetadata.participants;
+                const isAdmin       = participants.some(participant => participant.id === sender && participant.admin);
+                if(!isAdmin) {
+                    await sock.sendMessage(remoteJid, { text: mess.general.isAdmin }, { quoted: message });
+                    return;
+                }
         }
+
+    
    
         // Pisahkan keyword dan teks
         const [keywordOld, keywordNew] = content.split('|').map(item => item.trim().toLowerCase());
@@ -28,7 +35,7 @@ async function handle(sock, messageInfo) {
             );
         }
 
-       const updatedStatus = await updateKeyword(remoteJid, keywordOld, keywordNew);
+       const updatedStatus = await updateKeyword(idList, keywordOld, keywordNew);
 
        if(updatedStatus && updatedStatus.success){
         return sendMessageWithTemplate(sock, remoteJid, updatedStatus.message, message);

@@ -3,6 +3,7 @@ node_modules/
 tmp/    
 lib/key.txt
 logs/      
+logs_panel/      
 plugins_backup/
 session/
 catatan update.txt

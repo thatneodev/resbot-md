@@ -5,19 +5,24 @@ const { deleteCache }                        = require('@lib/globalCache');
 const mess = require('@mess');
 
 async function handle(sock, messageInfo) {
-    const { remoteJid, message, content, sender, isQuoted, command, prefix } = messageInfo;
+    const { remoteJid, isGroup, message, content, sender, isQuoted, command, prefix } = messageInfo;
 
     try {
-        
-        // Mendapatkan metadata grup
-        const groupMetadata = await getGroupMetadata(sock, remoteJid);
-        const participants  = groupMetadata.participants;
-        const isAdmin       = participants.some(participant => participant.id === sender && participant.admin);
-        if(!isAdmin) {
-            await sock.sendMessage(remoteJid, { text: mess.general.isAdmin }, { quoted: message });
-            return;
-        }
+        let idList = remoteJid;
 
+        if(!isGroup) { // Chat Pribadi
+            idList = 'owner';
+        }else {
+            // Mendapatkan metadata grup
+            const groupMetadata = await getGroupMetadata(sock, remoteJid);
+            const participants  = groupMetadata.participants;
+            const isAdmin       = participants.some(participant => participant.id === sender && participant.admin);
+            if(!isAdmin) {
+                await sock.sendMessage(remoteJid, { text: mess.general.isAdmin }, { quoted: message });
+                return;
+            }
+        }
+        
         // Validasi isi pesan
         if (!content.trim()) {
             return sendMessageWithTemplate(
@@ -76,7 +81,7 @@ ${global.group.variable}`,
         }
        
         // Cek apakah keyword sudah ada
-        const currentList = await getDataByGroupId(remoteJid);
+        const currentList = await getDataByGroupId(idList);
 
         if (currentList?.list?.[lowercaseKeyword]) {
             return sendMessageWithTemplate(
@@ -88,13 +93,13 @@ ${global.group.variable}`,
         }
 
         // reset cache
-        deleteCache(`list-${remoteJid}`)
+        deleteCache(`list-${idList}`)
 
         // Tangani media jika ada
         const mediaUrl = await handleMedia(messageInfo);
 
         // Tambahkan ke database
-        const result = await addList(remoteJid, lowercaseKeyword, { text, media: mediaUrl });
+        const result = await addList(idList, lowercaseKeyword, { text, media: mediaUrl });
         if (result.success) {
             return sendMessageWithTemplate(
                 sock, 

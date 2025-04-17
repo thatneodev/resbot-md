@@ -47,7 +47,7 @@ async function handle(sock, messageInfo) {
             }
             const buffer = fs.readFileSync(mediaPath);
             await sock.sendMessage(
-                remoteJid,
+                idgc,
                 {
                     image: buffer,
                     caption: pesangc,

@@ -25,11 +25,16 @@ const getAchievementBadge = (achievement) => {
 
 async function handle(sock, messageInfo) {
     try {
-        const { remoteJid, message, sender, pushName } = messageInfo;
+        const { remoteJid, isGroup, message, sender, pushName } = messageInfo;
         const Nosender = sender.replace('@s.whatsapp.net', '');
 
         const dataUsers = await findUser(sender);
         if (!dataUsers) return;
+
+        if(!isGroup) {
+            await sock.sendMessage(remoteJid, { text: 'Gunakan .me2 ya kak' }, { quoted: message });
+            return;
+        }
 
         await sock.sendMessage(remoteJid, { react: { text: "⏰", key: message.key } });
 

@@ -6,8 +6,15 @@ const fs = require('fs').promises;
 const { sendMessageWithMention, getCurrentTime, getCurrentDate, getGreeting, getHari } = require('@lib/utils');
 
 async function handle(sock, messageInfo) {
-    const { remoteJid, sender, message, content, prefix, command } = messageInfo;
+    const { remoteJid,isGroup, sender, message, content, prefix, command } = messageInfo;
 
+    let idList = remoteJid;
+
+    if(!isGroup) { // Chat Pribadi
+        idList = 'owner';
+    }else {
+
+    }
 
     const first_checksetlist = await checkMessage(remoteJid, 'setlist');
 
@@ -17,15 +24,23 @@ async function handle(sock, messageInfo) {
     if(result) {
         defaultLIst = result;
     }
-    // Mendapatkan metadata grup
-    const groupMetadata = await getGroupMetadata(sock, remoteJid);
-    const nameGrub      = groupMetadata.subject || '';
-    const size      = groupMetadata.size || '';
-    const desc      = groupMetadata.desc || '';
+
+    let nameGrub = '';
+    let size = '';
+    let desc = '';
+    
+    if (isGroup) {
+        // Mendapatkan metadata grup
+        const groupMetadata = await getGroupMetadata(sock, remoteJid);
+        nameGrub = groupMetadata.subject || '';
+        size     = groupMetadata.size || '';
+        desc     = groupMetadata.desc || '';
+    }
+   
 
     try {
         // Ambil data list berdasarkan grup
-        const currentList = await getDataByGroupId(remoteJid);
+        const currentList = await getDataByGroupId(idList);
 
         // Jika tidak ada list
         if (!currentList || !currentList.list) {

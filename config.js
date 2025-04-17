@@ -5,10 +5,10 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.1.7
+║ 📦 Version   : 4.1.8
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
-║ 💻 GitHub     : github.com/autoresbot/resbot ║
+║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
 ╚══════════════════════════════════════════════╝
 
 📌 Mulai 11 April 2025,

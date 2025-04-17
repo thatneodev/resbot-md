@@ -32,7 +32,7 @@ function detectFirstWhatsAppGroupLink(text) {
 async function handle(sock, messageInfo) {
     const { remoteJid, message, content, sender, prefix, command, isQuoted, type } = messageInfo;
 
-    const useMentions = false; // Ubah menjadi true jika ingin menggunakan mention
+    const useMentions = true; // Ubah menjadi true jika ingin menggunakan mention
 
     const link = detectFirstWhatsAppGroupLink(content);
 
@@ -178,7 +178,7 @@ function sendErrorMessage(sock, remoteJid, message, prefix, command) {
 
 module.exports = {
     handle,
-    Commands    : ['jpm'],
+    Commands    : ['jpmtag'],
     OnlyPremium : false,
     OnlyOwner   : true,
 };
