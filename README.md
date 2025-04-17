@@ -7,7 +7,7 @@
 ║ 📦 Version    : 4.1.8
 ║ 👨‍💻 Developer  : Azhari Creative
 ║ 🌐 Website    : autoresbot.com
-║ 💻 GitHub     : github.com/autoresbot/resbot
+║ 💻 GitHub     : github.com/autoresbot/resbot-md
 ╚═════════════════════════════════╝
 ```
 
