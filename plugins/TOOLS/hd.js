@@ -1,8 +1,9 @@
-const { ReminiV1 } = require('@scrape/remini');
 const { downloadQuotedMedia, downloadMedia, reply } = require('@lib/utils');
 const fs = require('fs');
 const path = require('path');
 const mess = require('@mess');
+const ApiAutoresbot = require("api-autoresbot");
+const config = require("@config");
 
 async function handle(sock, messageInfo) {
     const { m, remoteJid, message, content, prefix, command, type, isQuoted } = messageInfo;
@@ -26,24 +27,31 @@ async function handle(sock, messageInfo) {
             throw new Error('File media tidak ditemukan setelah diunduh.');
         }
 
-        // Membaca file menjadi Buffer
-        const mediaBuffer = fs.readFileSync(mediaPath);
-        // Proses menggunakan ReminiV1
-        const result = await ReminiV1(mediaBuffer);
+        const api = new ApiAutoresbot(config.APIKEY);
+        const response = await api.tmpUpload(mediaPath);
+
+        if (!response || response.code !== 200) {
+            throw new Error("File upload gagal atau tidak ada URL.");
+        }
+        const url = response.data.url;
+        
+        const MediaBuffer = await api.getBuffer('/api/tools/remini', { url });
+        
+        if (!Buffer.isBuffer(MediaBuffer)) {
+            throw new Error('Invalid response: Expected Buffer.');
+        }
 
         await sock.sendMessage(
             remoteJid,
             {
-                image: result,
+                image: MediaBuffer,
                 caption: mess.general.success,
             },
             { quoted: message }
         );
     } catch (error) {
-        console.error('Kesalahan saat memproses perintah Hd:', error);
-
         // Kirim pesan kesalahan yang lebih informatif
-        const errorMessage = `_Terjadi kesalahan saat memproses gambar._\n\nCoba gunakan *${prefix + command}2*`;
+        const errorMessage = `_Terjadi kesalahan saat memproses gambar._ \n\nERROR : ${error}`;
         await reply(m, errorMessage);
     }
 }

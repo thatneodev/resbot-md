@@ -10,20 +10,31 @@ const { updateUser,findUser }            = require("@lib/users");
 const autoAi                    = require('@lib/autoai');
 const autoSimi                  = require('@lib/autosimi');
 const autoRusuh                 = require('@lib/autorusuh');
-const { getGroupMetadata }      = require("@lib/cache");
+const { getGroupMetadata, findParticipantLatest }      = require("@lib/cache");
 const { logWithTime, isUrlInText, toText, sendMessageWithMention }    = require('@lib/utils');
 const { findMessageById, editMessageById }  = require("@lib/chatManager");
-const { sendImageAsSticker } = require('@lib/exif');
-const { Console } = require("console");
+const { sendImageAsSticker } = require('@lib/exif');;
 const notifiedUsers = new Set();
 const rateLimit_blacklist = {};
 const notifiedBlacklistUsers = new Set();
 
 async function process(sock, messageInfo) {
-    const { m, remoteJid, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isTagComunity } = messageInfo;
+    const { m, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isTagComunity } = messageInfo;
+    let { remoteJid } = messageInfo;
+
+    const result = findParticipantLatest(sender);
+    if (result && isTagSw) {
+        remoteJid = result.groupId;
+        // await sock.sendMessage(result.groupId, { text : 'TES' }, { quoted: message });
+    }
 
     const messagesDefault = toText(message);
-    if (!isGroup) return true; // Abaikan jika bukan grup
+    if (isTagSw || isGroup) {
+        // lanjut
+    } else {
+        return true; // Abaikan jika bukan grup
+    }
+    
 
     const now = Date.now();
 
@@ -34,8 +45,8 @@ async function process(sock, messageInfo) {
             logWithTime('System', `Data grup tidak ditemukan atau fitur belum diaktifkan.`);
             return true;
         }
+        
         const { fitur } = dataGroupSettings;
-
 
          // Mencari pengguna
          const user = await findUser(sender);
@@ -47,7 +58,7 @@ async function process(sock, messageInfo) {
 
         // Fungsi untuk menghapus pesan
         const deleteMessage = async () => {
-            await sock.sendMessage(remoteJid, {
+            const result = await sock.sendMessage(remoteJid, {
                 delete: { remoteJid, id, participant: sender }
             });
         };
@@ -513,8 +524,7 @@ async function process(sock, messageInfo) {
         }
 
         // Deteksi antitag sw
-        if (!isAdmin && fitur?.antitagsw && isGroup && isTagSw) {
-         
+        if (!isAdmin && fitur?.antitagsw && isTagSw) {
             if (mess.handler.antitagsw) {
                 let warningMessage = mess.handler.antitagsw
                     .replace('@sender', `@${sender.split('@')[0]}`);
@@ -525,7 +535,7 @@ async function process(sock, messageInfo) {
         }
 
         // Deteksi antitag sw2
-        if (!isAdmin && fitur?.antitagsw2 && isGroup && isTagSw) {
+        if (!isAdmin && fitur?.antitagsw2 && isTagSw) {
          
             if (mess.handler.antitagsw) {
                 let warningMessage = mess.handler.antitagsw

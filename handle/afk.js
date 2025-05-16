@@ -25,22 +25,22 @@ async function process(sock, messageInfo) {
         // Cek status AFK pengguna saat ini
         let userAfk = await findUser(sender);
     
-  
         if (userAfk?.status === "afk" && userAfk.afk) {
-            if(mess.handler.afk_message) {
+            if (mess.handler?.afk_message) {
                 const afkMessage = mess.handler.afk_message
-                .replace('@sender', pushName)
-                .replace('@durasi', formatDuration(userAfk.afk.lastChat))
-                .replace('@alasan', userAfk.afk.alasan ? `\n\n📌 ${userAfk.afk.alasan}` : "\n\n📌 Tanpa Alasan");
-                
-                if(afkMessage) {
+                    .replace('@sender', pushName)
+                    .replace('@durasi', formatDuration(userAfk.afk.lastChat))
+                    .replace('@alasan', userAfk.afk.alasan ? `\n\n📌 ${userAfk.afk.alasan}` : "\n\n📌 Tanpa Alasan");
+        
+                if (afkMessage) {
                     await sock.sendMessage(remoteJid, { text: afkMessage }, { quoted: message });
                 }
             }
-            
+        
             await updateUser(sender, { status: "aktif", afk: null });
             return false;
         }
+        
 
             if (mentionedJid?.length > 0) {
                 const mentionedUsers = await Promise.all(

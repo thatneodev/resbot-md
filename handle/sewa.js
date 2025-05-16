@@ -9,6 +9,25 @@ const notificationDays  = 3; // Jumlah hari sebelum notifikasi dikirim
 const notifiedGroups    = new Set(); // Cache untuk grup yang sudah menerima notifikasi
 const nonSewaGroups     = new Set();
 
+
+async function leaveGroupWithRetry(sock, remoteJid, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await sock.groupLeave(remoteJid);
+        console.log(`Berhasil keluar dari grup pada percobaan ke-${attempt}`);
+        break; // keluar dari loop jika berhasil
+      } catch (err) {
+        console.error(`Gagal keluar dari grup (percobaan ke-${attempt}):`, err);
+        if (attempt === maxRetries) {
+          console.error(`Gagal setelah ${maxRetries} kali mencoba.`);
+        } else {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // jeda 1 detik sebelum mencoba lagi
+        }
+      }
+    }
+  }
+  
+
 async function process(sock, messageInfo) {
     const { remoteJid, isGroup, message } = messageInfo;
 
@@ -54,7 +73,7 @@ async function process(sock, messageInfo) {
             await deleteSewa(remoteJid);
 
             try {
-                await sock.groupLeave(remoteJid);
+                await leaveGroupWithRetry(sock, remoteJid);
                 danger('Sewa Habis', `Berhasil keluar Grub :  ${remoteJid}`);
             } catch (error) {
                 console.error(`Gagal keluar dari grup ${remoteJid}:`, error);

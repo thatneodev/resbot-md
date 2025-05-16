@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.1.8
+║ 📦 Version   : 4.1.9
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -20,9 +20,9 @@ const moment       = require('moment-timezone');
 
 const CONNECTION   = 'pairing'; // qr atau pairing
 const OWNER_NAME   = 'Autoresbot';
-const NOMOR_BOT    = '6285124002201'; // 628xx nomor wa
+const NOMOR_BOT    = '6285124002196'; // 628xx nomor wa
 const DESTINATION  = 'group'; // group , private, both
-const APIKEY       = 'autoresbot_free30day'; // apikey dari autoresbot.com (paket apikey)
+const APIKEY       = ''; // apikey dari autoresbot.com (paket apikey)
 const RATE_LIMIT   = 3000; // 3 detik/chat
 const SIMILARITY   = true; // Pencarian kemiripan command (true, false)
 const MODE         = 'production'; // [production, development] (jangan di ubah kecuali anda developer)
@@ -39,7 +39,7 @@ const AUTO_READ          = false; // jika true (setiap chat akan di baca/centang
 const AUTO_BACKUP        = false; // jika true (setiap restart server, data backup di kirimkan ke wa owner);
 const MIDNIGHT_RESTART   = false; // Restart setiap jam 12 malam
 const PRESENCE_UPDATE    = ''; // unavailable, available, composing, recording, paused
-const TYPE_WELCOME       = '6'; // 1, 2, 3, 4, 5, 6 text dan random
+const TYPE_WELCOME       = '1'; // 1, 2, 3, 4, 5, 6 text dan random
 const BG_WELCOME2        = 'https://api.autoresbot.com/api/maker/bg-default';
 
 // Konfiqurasi Panel

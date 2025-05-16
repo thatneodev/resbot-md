@@ -9,8 +9,8 @@ async function handle(sock, messageInfo) {
         return sock.sendMessage(remoteJid, { text: `_⚠️ Format Penggunaan:_ \n\n_💬 Contoh:_ _*${prefix + command} @TAG*_` }, { quoted: message });
     }
 
-    // Cek apakah yang ditandai adalah owner
-    const isOwner = `${config.owner_number}@s.whatsapp.net` === mentionedJid[0];
+    // Cek apakah yang ditandai adalah salah satu owner
+    const isOwner = config.owner_number.map(num => `${num}@s.whatsapp.net`).includes(mentionedJid[0]);
 
     // Tentukan array kemungkinan jawaban
     const gan = isOwner

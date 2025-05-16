@@ -11,7 +11,7 @@ async function checkUpdate(){
         const data = response.data;
         return data;
     } catch (error) {
-        return false;
+        return null;
     }
 }
 
@@ -30,6 +30,11 @@ async function process(sock, messageInfo) {
 
     const result = await checkUpdate();
 
+    if(!result) { // jika api bermasalah
+        respondedSenders.add('notif_update');
+        return true;
+    }
+
     if(result.code == 200 && result.message == 'Anda sudah menggunakan versi terbaru.') {
         respondedSenders.add('notif_update');
         return true;
@@ -37,6 +42,7 @@ async function process(sock, messageInfo) {
     const response = `👋 _${salam}_ Owner! \n\n✨ Versi terbaru script sudah tersedia! ✨\nKetik *.update -y* untuk langsung memperbaruinya 🚀
 
 atau ketik *.updateforce* untuk memperbarui semua yang tersedia`;
+
 
     try {
         // Kirim pesan balasan ke pengirim

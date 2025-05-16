@@ -1,6 +1,6 @@
 {
   "name": "resbot-md",
-  "version": "4.1.8",
+  "version": "4.1.9",
   "description": "Powerful WhatsApp Bot Script with Plugin Base",
   "main": "index.js",
   "scripts": {
@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
-    "@whiskeysockets/baileys": "^6.7.9",
     "api-autoresbot": "^1.0.5",
     "archiver": "^7.0.1",
+    "baileys": "^6.7.17",
     "btch-downloader": "^2.8.2",
     "canvas": "^3.1.0",
     "chalk": "^4.1.0",
@@ -44,6 +44,7 @@
     "sharp": "^0.32.6",
     "ssh2": "^1.16.0",
     "unzipper": "^0.12.3",
+    "uuid": "^11.1.0",
     "wa-sticker-formatter": "^4.4.4",
     "whois": "^2.14.2",
     "winston": "^3.17.0",

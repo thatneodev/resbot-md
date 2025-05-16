@@ -21,7 +21,7 @@ async function handle(sock, messageInfo) {
             const warningMessage = `
 ⚠️ _Konfigurasi panel belum selesai._
 
-_Silakan lengkapi bagian:_ *PANEL_URL*, *PANEL_PLTA*, dan *PANEL_ID_EGG* _di file *resconfig.js*._
+_Silakan lengkapi bagian:_ *PANEL_URL*, *PANEL_PLTA*, dan *PANEL_ID_EGG* _di file *config.js*._
 
 _Pastikan Anda adalah pemilik *server panel* atau *admin panel* untuk mendapatkan informasi tersebut._`;
             return await reply(m, warningMessage.trim());

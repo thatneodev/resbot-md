@@ -1,6 +1,6 @@
 const fs    = require('fs');
 const path  = require('path');
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('baileys');
 const { Boom }                  = require("@hapi/boom");
 const qrcode                    = require('qrcode-terminal');
 const pino                      = require("pino");

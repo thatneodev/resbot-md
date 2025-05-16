@@ -10,7 +10,7 @@ async function handle(sock, messageInfo) {
     }
 
     // Cek apakah yang ditandai adalah owner
-    const isOwner = `${config.owner_number}@s.whatsapp.net` === mentionedJid[0];
+    const isOwner = config.owner_number.map(num => `${num}@s.whatsapp.net`).includes(mentionedJid[0]);
 
     // Tentukan array kemungkinan jawaban
     const gan = isOwner

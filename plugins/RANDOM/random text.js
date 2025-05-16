@@ -30,7 +30,7 @@ async function handle(sock, messageInfo) {
 
 module.exports = {
     handle,
-    Commands    : ['animequotes', 'bucinquote', 'dilanquote', 'faktaunik', 'jawaquote', 'jokes', 'motivasi', 'pantun', 'quote', 'quotes', 'randomquote'],
+    Commands    : ['animequotes', 'bucinquote', 'dilanquote', 'faktaunik', 'jawaquote', 'jokes', 'pantun', 'quote', 'quotes', 'randomquote'],
     OnlyPremium : false,
     OnlyOwner   : false,
     limitDeduction  : 1, // Jumlah limit yang akan dikurangi

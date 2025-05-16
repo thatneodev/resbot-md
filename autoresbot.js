@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.1.8
+║ 📦 Version   : 4.1.9
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -23,7 +23,7 @@ const { findGroup }     = require("@lib/group");
 const chalk             = require('chalk');
 const handler           = require('./lib/handler');
 const mess              = require("@mess");
-const { clearGroupCache }       = require("@lib/cache");
+const { updateParticipant }       = require("@lib/cache");
 const lastMessageTime           = {};
 const path                      = require('path');
 const { handleActiveFeatures }  = require('./lib/participant_update');
@@ -177,17 +177,18 @@ async function processMessage(sock, messageInfo) {
 
  // Fungsi ketika grub update
 async function participantUpdate(sock, messageInfo) {
-    const { id, action } = messageInfo;
+    const { id, action, participants } = messageInfo;
     const now = Date.now();
 
     try {
         const settingGroups = await findGroup(id);
+        const validActions = ['promote', 'demote', 'add', 'remove'];
 
-         // Delete Cache Grub jika promote atau demote
-        if(action == 'promote' || action == 'demote') {
-            await clearGroupCache(id);
+        if (validActions.includes(action)) {
+            updateParticipant(id, participants, action);
+        } else {
+            return console.log('action tidak valid :',action)
         }
-        
         // Jika grup ditemukan
         if (settingGroups) {
             if (lastSent_participantUpdate[id]) {

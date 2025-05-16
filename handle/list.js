@@ -61,6 +61,7 @@ async function process(sock, messageInfo) {
         "@greeting": greeting,
         "@size": size,
         "@time": time,
+        "@sender": targetMention,
     };
 
         let customizedMessage = text;
