@@ -19,7 +19,7 @@ const rateLimit_blacklist = {};
 const notifiedBlacklistUsers = new Set();
 
 async function process(sock, messageInfo) {
-    const { m, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isTagComunity } = messageInfo;
+    const { m, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isForwarded, isTagComunity } = messageInfo;
     let { remoteJid } = messageInfo;
 
     const result = findParticipantLatest(sender);
@@ -329,7 +329,7 @@ async function process(sock, messageInfo) {
             document: fitur.antidocument,
             contact: fitur.anticontact,
             sticker: fitur.antisticker,
-            poll: fitur.antipolling,
+            poll: fitur.antipolling
         };
         
         if (!isAdmin && antiFeatures[type]) {
@@ -569,6 +569,31 @@ async function process(sock, messageInfo) {
             await kickParticipant();
             return false;
         }
+
+        
+        if (!isAdmin && fitur?.antiforward && isGroup && isForwarded) {
+            let warningMessage = '⚠️ @sender _Terdeteksi Mengirim Pesan Terusan_'
+            if (warningMessage) {
+                warningMessage = warningMessage
+                    .replace('@sender', `@${sender.split('@')[0]}`);
+                await sendText(warningMessage, true);
+            }
+            await deleteMessage();
+            return false;
+        }
+
+        if (!isAdmin && fitur?.antiforward2 && isGroup && isForwarded) {
+            let warningMessage = '⚠️ @sender _Terdeteksi Mengirim Pesan Terusan_'
+            if (warningMessage) {
+                warningMessage = warningMessage
+                    .replace('@sender', `@${sender.split('@')[0]}`);
+                await sendText(warningMessage, true);
+            }
+            await deleteMessage();
+            await kickParticipant();
+            return false;
+        }
+
 
 
         if (rateLimit_blacklist[sender] && now - rateLimit_blacklist[sender] < 5000) {

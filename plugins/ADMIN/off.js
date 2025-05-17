@@ -47,7 +47,9 @@ const featureList = [
     { name: 'antitagsw', label: 'ᴀɴᴛɪᴛᴀɢꜱᴡ' },
     { name: 'antitagsw2', label: 'ᴀɴᴛɪᴛᴀɢꜱᴡ2' },
     { name: 'antitagmeta', label: 'ᴀɴᴛɪᴛᴀɢᴍᴇᴛᴀ' },
-    { name: 'antitagmeta2', label: 'ᴀɴᴛɪᴛᴀɢᴍᴇᴛᴀ2' }
+    { name: 'antitagmeta2', label: 'ᴀɴᴛɪᴛᴀɢᴍᴇᴛᴀ2' },
+    { name: 'antiforward', label: 'ᴀɴᴛɪꜰᴏʀᴡᴀʀᴅ' },
+    { name: 'antiforward2', label: 'ᴀɴᴛɪꜰᴏʀᴡᴀʀᴅ2' }
 ];
 
 // Membuat template dengan memeriksa status setiap fitur

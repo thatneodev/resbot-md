@@ -175,7 +175,7 @@ async function processMessage(sock, messageInfo) {
     }
 }
 
- // Fungsi ketika grub update
+
 async function participantUpdate(sock, messageInfo) {
     const { id, action, participants } = messageInfo;
     const now = Date.now();
@@ -185,7 +185,11 @@ async function participantUpdate(sock, messageInfo) {
         const validActions = ['promote', 'demote', 'add', 'remove'];
 
         if (validActions.includes(action)) {
-            updateParticipant(id, participants, action);
+            try {
+                updateParticipant(sock, id, participants, action);
+            }catch(e){
+                console.log('error updateParticipant ',e)
+            }
         } else {
             return console.log('action tidak valid :',action)
         }
@@ -197,6 +201,7 @@ async function participantUpdate(sock, messageInfo) {
                 }
             }
             lastSent_participantUpdate[id] = now;
+
             await handleActiveFeatures(sock, messageInfo, settingGroups.fitur);
         }
     } catch (error) {

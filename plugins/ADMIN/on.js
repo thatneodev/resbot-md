@@ -2,6 +2,7 @@ const { findGroup, updateGroup } = require("@lib/group");
 const { getGroupMetadata } = require("@lib/cache");
 const {  updateSocket }     = require('@lib/scheduled');
 const mess                 = require('@mess');
+const { Console } = require("winston/lib/winston/transports");
 
 const icon_on  = '🟢';
 const icon_off = '🔴';
@@ -47,7 +48,9 @@ const featureList = [
     { name: 'antitagsw', label: 'ᴀɴᴛɪᴛᴀɢꜱᴡ' },
     { name: 'antitagsw2', label: 'ᴀɴᴛɪᴛᴀɢꜱᴡ2' },
     { name: 'antitagmeta', label: 'ᴀɴᴛɪᴛᴀɢᴍᴇᴛᴀ' },
-    { name: 'antitagmeta2', label: 'ᴀɴᴛɪᴛᴀɢᴍᴇᴛᴀ2' }
+    { name: 'antitagmeta2', label: 'ᴀɴᴛɪᴛᴀɢᴍᴇᴛᴀ2' },
+    { name: 'antiforward', label: 'ᴀɴᴛɪꜰᴏʀᴡᴀʀᴅ' },
+    { name: 'antiforward2', label: 'ᴀɴᴛɪꜰᴏʀᴡᴀʀᴅ2' }
 ];
 
 // Membuat template dengan memeriksa status setiap fitur
@@ -98,6 +101,7 @@ async function handle(sock, messageInfo) {
         const groupMetadata = await getGroupMetadata(sock, remoteJid);
         const participants  = groupMetadata.participants;
         const isAdmin       = participants.some(participant => participant.id === sender && participant.admin);
+
         if(!isAdmin) {
             await sock.sendMessage(remoteJid, { text: mess.general.isAdmin }, { quoted: message });
             return;
