@@ -67,5 +67,5 @@ module.exports = {
     Commands    : ['brat'],
     OnlyPremium : false,
     OnlyOwner   : false,
-    limitDeduction  : 10
+    limitDeduction  : 1
 };
