@@ -18,6 +18,9 @@ const notifiedUsers = new Set();
 const rateLimit_blacklist = {};
 const notifiedBlacklistUsers = new Set();
 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+
 async function process(sock, messageInfo) {
     const { m, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isForwarded, isTagComunity } = messageInfo;
     let { remoteJid } = messageInfo;
@@ -249,6 +252,7 @@ async function process(sock, messageInfo) {
                         let warningMessage = mess.handler.badword_block
                             .replace('@sender', `@${sender.split('@')[0]}`)
                             .replace('@warning', result.totalWarnings)
+                            .replace('@detectword', detectWords)
                             .replace('@totalwarning', config.BADWORD.warning);
                         
                         await sendText(warningMessage, true);
@@ -546,7 +550,7 @@ async function process(sock, messageInfo) {
             await kickParticipant();
             return false;
         }
-
+       
         if (fitur?.antitagmeta && isGroup && isTagMeta) {
             let warningMessage = '⚠️ @sender _Terdeteksi Tag Meta Ai di grub ini_'
             if (warningMessage) {

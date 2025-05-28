@@ -27,15 +27,29 @@ async function handle(sock, messageInfo) {
 
         // Buat instance API dan ambil data dari endpoint
         const api = new ApiAutoresbot(config.APIKEY);
-        const buffer = await api.getBuffer('/api/maker/brat', { text: sanitizedContent });
+
+        let buffer = false;
+        try {
+            buffer = await api.getBuffer('/api/maker/brat', { text: sanitizedContent });
+        } catch(e){
+            buffer = false;
+        }
 
         const options = {
             packname: config.sticker_packname,
             author: config.sticker_author,
         };
 
-        // Kirim stiker
-        await sendImageAsSticker(sock, remoteJid, buffer, options, message);
+        if(buffer){
+            // Kirim stiker
+            await sendImageAsSticker(sock, remoteJid, buffer, options, message);
+        }else {
+            await sock.sendMessage(remoteJid, {
+                text: 'Ada kesalahan periksa apikey anda, ketik .apikey'
+            }, { quoted: message });
+        }
+
+       
 
 
     } catch (error) {
@@ -53,5 +67,5 @@ module.exports = {
     Commands    : ['brat'],
     OnlyPremium : false,
     OnlyOwner   : false,
-    limitDeduction  : 2
+    limitDeduction  : 10
 };

@@ -36,10 +36,9 @@ async function handle(sock, messageInfo) {
 
         // Perbarui data grup jika ada perubahan
         if (updateData) {
-            if (dataGroup) {
+            const dataGroup2 = await findGroup('owner');
+            if (dataGroup2) {
                 await updateGroup('owner', updateData);
-            } else {
-                await addGroup('owner', updateData);
             }
         }
 

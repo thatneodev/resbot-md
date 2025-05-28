@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.1.9
+║ 📦 Version   : 4.2.0
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -137,7 +137,8 @@ async function processMessage(sock, messageInfo) {
                         const dataUsers = await findUser(sender);
                         if (!dataUsers) return;
 
-                        if (dataUsers.limit < 1) {
+                        const isLimitExceeded = dataUsers.limit < plugin.limitDeduction || dataUsers.limit < 1;
+                        if (isLimitExceeded) {
                             await sock.sendMessage(remoteJid, { text: mess.general.limit }, { quoted: message });
                             return;
                         }

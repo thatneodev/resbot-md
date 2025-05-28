@@ -2,10 +2,10 @@ const respondedSenders  = new Set();
 const { getGreeting }   = require('@lib/utils');
 
 async function process(sock, messageInfo) {
-    const { sender, isGroup, message, pushName, fullText } = messageInfo;
+    const { sender, remoteJid, isGroup, message, pushName, fullText } = messageInfo;
 
     // KOMENTARI INI UNTUK MEMATIKAN
-    return true; 
+    return true;
 
     const salam = getGreeting();
     if (isGroup) return true; // Abaikan jika pesan berasal dari grup
@@ -13,6 +13,9 @@ async function process(sock, messageInfo) {
     if(!fullText) return true;
     if (["batu", "kertas", "gunting"].includes(fullText.toLowerCase())) return;
     
+
+    if(remoteJid == 'status@broadcast') return true; // abaikan story
+
     // Cek apakah sender sudah pernah diberi respons
     if (respondedSenders.has(sender)) return true;
 

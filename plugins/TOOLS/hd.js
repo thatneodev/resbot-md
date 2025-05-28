@@ -1,4 +1,4 @@
-const { downloadQuotedMedia, downloadMedia, reply } = require('@lib/utils');
+const { downloadQuotedMedia, downloadMedia, reply, uploadTmpFile } = require('@lib/utils');
 const fs = require('fs');
 const path = require('path');
 const mess = require('@mess');
@@ -27,28 +27,33 @@ async function handle(sock, messageInfo) {
             throw new Error('File media tidak ditemukan setelah diunduh.');
         }
 
-        const api = new ApiAutoresbot(config.APIKEY);
-        const response = await api.tmpUpload(mediaPath);
+        const upload = await uploadTmpFile(mediaPath)
+        if(upload.status) {
+            const url = upload.fileUrl
 
-        if (!response || response.code !== 200) {
-            throw new Error("File upload gagal atau tidak ada URL.");
-        }
-        const url = response.data.url;
-        
-        const MediaBuffer = await api.getBuffer('/api/tools/remini', { url });
-        
-        if (!Buffer.isBuffer(MediaBuffer)) {
-            throw new Error('Invalid response: Expected Buffer.');
+            const api = new ApiAutoresbot(config.APIKEY);
+                            
+            const MediaBuffer = await api.getBuffer('/api/tools/remini', { url });
+            
+            if (!Buffer.isBuffer(MediaBuffer)) {
+                throw new Error('Invalid response: Expected Buffer.');
+            }
+
+            await sock.sendMessage(
+                remoteJid,
+                {
+                    image: MediaBuffer,
+                    caption: mess.general.success,
+                },
+                { quoted: message }
+            );
+
+        }else {
+            const errorMessage = `_Terjadi kesalahan saat upload ke gambar._ \n\nERROR : ${error}`;
+            await reply(m, errorMessage);
         }
 
-        await sock.sendMessage(
-            remoteJid,
-            {
-                image: MediaBuffer,
-                caption: mess.general.success,
-            },
-            { quoted: message }
-        );
+    
     } catch (error) {
         // Kirim pesan kesalahan yang lebih informatif
         const errorMessage = `_Terjadi kesalahan saat memproses gambar._ \n\nERROR : ${error}`;
