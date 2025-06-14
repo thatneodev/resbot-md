@@ -26,7 +26,7 @@ const menu = {
         'fb', 'ig', 'igfoto', 'lirik','pin','play','spotify','tiktoksearch','ttslide','tiktok','ttmp3','twiter','ytmp3','ytmp4','ytsearch',
     ],
     game: [
-        'blackjack','caklontong', 'cekkodam', 'dare','family100','math','suit','tebakangka', 'tebakbendera','tebakbom', 'tebakgambar', 'tebakhewan', 'tebakkalimat','tebakkata','tebaklagu','tebaklirik','tictactoe','truth',
+        'blackjack','caklontong', 'cekkodam', 'dare','family100','math','suit','snakes','tebakangka', 'tebakbendera','tebakbom', 'tebakgambar', 'tebakhewan', 'tebakkalimat','tebakkata','tebaklagu','tebaklirik','tictactoe','truth',
     ],
     grub: [
         'absen','afk','badword','buylimit','cekprem','ceksewa','claim','getpic','infogc','linkgrub','me','me2','sendlimit','sendmoney','setakun',
@@ -50,7 +50,7 @@ const menu = {
         'apikey','cekapikey','grubbot','sc','style','tutor','ratelimit','report',
     ],
     owner: [
-        'addlevel','addlimit','addmoney','addowner','addplugin','addpremium','addrespon','addglobalbadword','block','backup','buatstory','creategc','delowner','delplugin','delprem','deletejadibot','delresponse','delsewa','delglobalbadword','demoteme','gctag','grubbot','infosystem','ipserver','jadibot','join','jpm','listblock','listprem','listrespon','listsewa','listjadibot','outallgc','outgc','promoteme','public','reset','resetmoney','resetlimit','resetlevel','restart','self','setbio','setname','setppbot','stopjadibot','sewabot','sewabotid','tambahsewa','totalsewa','unblock','update',
+        'addlevel','addlimit','addmoney','addowner','addplugin','addpremium','addrespon','addglobalbadword','block','backup','buatstory','creategc','delowner','delplugin','delprem','deletejadibot','delresponse','delsewa','delglobalbadword','demoteme','gctag','grubbot','infosystem','ipserver','jadibot','join','jpm','listblock','listprem','listrespon','listsewa','listnosewa','listjadibot','outallgc','outgc','outnosewa','promoteme','public','reset','resetmoney','resetlimit','resetlevel','restart','self','setbio','setname','setppbot','stopjadibot','sewabot','sewabotid','tambahsewa','totalsewa','unblock','update',
     ],
     panel: [
         'statuspanel', 'createserver', 'createuser', 'listserver', 'listuser', 'delserver', 'deluser', 'finduser', 'saveuser','resetserver','resetuser','1gb','2gb','3gb','4gb','5gb','6gb','7gb','8gb','unlimited',
