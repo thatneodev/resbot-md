@@ -314,7 +314,7 @@ async function process(sock, messageInfo) {
 
         // Deteksi antigame
         if (fitur.antigame && command) {
-            const Games = ['bj','blackjack','caklontong', 'kodam', 'cekkodam', 'dare','family100','kuismath','math','suit','tebakangka', 'tebakbendera','tebakbom', 'tebakgambar', 'tebakhewan', 'tebakkalimat','tebakkata','tebaklagu','tebak','tebaklirik','tictactoe','truth','ttc','ttt'];
+            const Games = ['bj','blackjack','caklontong', 'kodam', 'cekkodam','snakes', 'dare','family100','kuismath','math','suit','tebakangka', 'tebakbendera','tebakbom', 'tebakgambar', 'tebakhewan', 'tebakkalimat','tebakkata','tebaklagu','tebak','tebaklirik','tictactoe','truth','ttc','ttt'];
             if (Games.some(game => command.includes(game))) {
                 const notifKey = `antigame-${remoteJid}-${sender}`;
                 if (!notifiedUsers.has(notifKey)) {
@@ -419,7 +419,7 @@ async function process(sock, messageInfo) {
 
          // Deteksi anti-spam
         if (!isAdmin && typeof fitur.antispamchat === "boolean" && fitur.antispamchat) {
-    
+         
             const result = spamDetection(sender);
             if (result.status === 'warning') {
                 if (mess.handler.antispamchat) {

@@ -1,5 +1,6 @@
 const { removeUser, getUser, isUserPlaying } = require("@tmpDB/family100");
 const { sendMessageWithMention } = require('@lib/utils');
+const { addUser, updateUser, deleteUser, findUser } = require("@lib/users");
 
 async function process(sock, messageInfo) {
     const { remoteJid, fullText, message, sender } = messageInfo;
@@ -10,6 +11,9 @@ async function process(sock, messageInfo) {
     }
 
     const data = getUser(remoteJid);
+
+    // hadiahPerJawabanBenar
+    // hadiahJikaMenang
 
     // Validasi struktur data
     if (!data || !data.answer || !Array.isArray(data.answer)) {
@@ -61,8 +65,60 @@ ${data.answer
     .filter(Boolean)  // Hapus jawaban yang belum terjawab saat bermain
     .join('\n')}`.trim();
 
-    // Kirim pesan dengan mention
-    await sendMessageWithMention(sock, remoteJid, caption, message);
+
+    const hadiahPerJawabanBenar = data.hadiahPerJawabanBenar;
+    const hadiahJikaMenang = data.hadiahJikaMenang;
+    let MoneyClaim;
+
+
+    if(!isSurrender) {  // Hadiah tidak nyerah
+
+        // Mencari pengguna
+        const user = await findUser(sender);
+
+        if(isWin) {
+            MoneyClaim = hadiahJikaMenang;
+
+        }else {
+            // jika jawaban tepat
+             MoneyClaim = hadiahPerJawabanBenar;
+        }
+
+        
+        if (user) {
+            const moneyAdd = (user.money || 0) + MoneyClaim; // Default money ke 0 jika undefined
+            await updateUser(sender, { money: moneyAdd });
+        } else {
+            await addUser(sender, {
+                money: MoneyClaim,
+                role: "user",
+                status: "active",
+            });
+        }
+
+
+       
+    }
+
+
+    if(isWin) {
+        // Kirim pesan dengan mention
+        await sendMessageWithMention(sock, remoteJid, `🎉 Selamat! Semua Jawaban telah terjawab. Anda mendapatkan ${MoneyClaim} Money.`, message);
+   
+    }else {
+
+        if(!isSurrender) {
+            const captionNew = `Jawaban Benar anda dapat ${MoneyClaim} Money\n\n${caption}`;
+             // Kirim pesan dengan mention
+            await sendMessageWithMention(sock, remoteJid, captionNew, message);
+            return true;
+        }
+
+        // Kirim pesan dengan mention
+        await sendMessageWithMention(sock, remoteJid, caption, message);
+
+    }
+
 
     if (isWin || isSurrender) {
         // Hapus pengguna dari permainan setelah selesai atau nyerah

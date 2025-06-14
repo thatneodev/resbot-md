@@ -16,7 +16,7 @@ async function process(sock, messageInfo) {
     try {
         const selfChecker = await findGroup('owner');
         if(selfChecker && command != 'public'){
-            console.log('MASUK SINI SELF CHECKER')
+            console.log('BOT SEDANG SELF')
             logWithTime('System',`BOT SEDANG DI SELF`);
             if(await isOwner(sender)) {
                 return true;

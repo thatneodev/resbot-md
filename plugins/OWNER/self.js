@@ -5,7 +5,9 @@ async function handle(sock, messageInfo) {
 
     try {
         // Cari data grup berdasarkan ID
-        const dataGroup = await findGroup('owner');
+        const dataGroup = await findGroup('owner', true);
+
+        const isSelf = dataGroup?.fitur?.self;
 
         // Variabel untuk respon dan pembaruan data
         let responseText = "";
@@ -17,6 +19,10 @@ async function handle(sock, messageInfo) {
                 updateData = { fitur: { self: true } };
                 responseText =
                     "_Bot berhasil di-self. Bot hanya dapat digunakan oleh owner. Untuk menjadikannya agar semua orang bisa menggunakan ketik_ *.public*.";
+                if(isSelf){
+                    responseText = '_Bot Sebelumnya sudah self_'
+                }
+               
                 break;
 
             case "public":

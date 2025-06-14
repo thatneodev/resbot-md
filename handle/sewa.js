@@ -1,3 +1,6 @@
+const ONLY_GC_SEWA = false; // jika true maka grub tanpa sewa tidak akan di respon, jadikan false jika semua grub aktif
+
+
 const { findSewa, deleteSewa }  = require("@lib/sewa");
 const config                    = require("@config");
 const { selisihHari, danger }   = require("@lib/utils");
@@ -83,11 +86,16 @@ async function process(sock, messageInfo) {
             return false;
         }
     }else {
-         // Hanya log grup non-sewa satu kali
+         //Hanya log grup non-sewa satu kali
         if (!nonSewaGroups.has(remoteJid)) {
             logCustom('info', 'GRUB INI BUKAN TERMASUK SEWABOT', `bukan-sewa-${remoteJid}.txt`);
+            //console.log(`${remoteJid} : GRUB INI BUKAN TERMASUK SEWABOT`)
             nonSewaGroups.add(remoteJid); // Tandai grup sebagai bukan sewa
         }
+        if(ONLY_GC_SEWA){
+            return false;
+        }
+       
     }
 }
 

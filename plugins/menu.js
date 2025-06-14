@@ -96,10 +96,11 @@ ${Object.keys(menu).map(key => formatMenu(key.toUpperCase(), menu[key])).join('\
                 text : style(response),
                 contextInfo: {
                 externalAdReply: {
-                    showAdAttribution: true, 
+                    showAdAttribution: false, 
                     title: `Halo ${pushName}`,
                     body: `Resbot ${config.version}`,
                     thumbnail: buffer,
+                    jpegThumbnail: buffer, // tambahkan ini
                     thumbnailUrl: linkGroup,
                     sourceUrl: linkGroup,
                     mediaType: 1,

@@ -59,7 +59,7 @@ async function handle(sock, messageInfo) {
 
 module.exports = {
     handle,
-    Commands: ["kodam", "cekkodam", "cek", "cekkhodam", "cekodam"],
+    Commands: ["kodam", "cekkodam", "cekkhodam", "cekodam"],
     OnlyPremium: false,
     OnlyOwner: false,
 };

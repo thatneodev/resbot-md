@@ -29,6 +29,7 @@ async function handle(sock, messageInfo) {
         }
 
         const { soal, jawaban } = gameData;
+        console.log(jawaban)
 
         logWithTime('Family100', `Jawaban : ${jawaban}`);
 
@@ -37,7 +38,8 @@ async function handle(sock, messageInfo) {
             soal,
             answer: jawaban,
             terjawab: Array(jawaban.length).fill(false), // Array untuk jawaban yang sudah ditebak
-            hadiah: 10, // Jumlah hadiah jika menang
+            hadiahPerJawabanBenar: 1, // Hadiah untuk setiap jawaban yang benar
+            hadiahJikaMenang: 20, // Hadiah jika semua jawaban berhasil ditebak (menang)
         });
 
         // Format pesan untuk pertanyaan

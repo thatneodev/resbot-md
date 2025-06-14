@@ -4,35 +4,44 @@ async function handle(sock, messageInfo) {
     const { m, remoteJid, message, prefix, command, content } = messageInfo;
 
     try {
-        // Validasi input
-        if (!content) {
-            return await reply(m, `_⚠️ Format Penggunaan:_ \n\n_💬 Contoh:_ _${prefix + command} 6285246154386_`);
+        // Cek jika tidak ada input
+        if (!content || !content.trim()) {
+            return await reply(
+                m,
+                `_⚠️ Format Penggunaan:_\n\n📌 *${prefix + command} <nomor>*\n\n💬 *Contoh:* ${prefix + command} 6281234567890`
+            );
         }
 
-        const phoneNumber = content.trim();
+        // Ambil dan bersihkan input
+        let phoneNumber = content.trim().replace(/[^0-9]/g, "");
 
-        // Validasi apakah input adalah angka dan panjangnya sesuai
+        // Validasi nomor HP internasional
         if (!/^\d{10,15}$/.test(phoneNumber)) {
-            return await reply(m, `_Nomor yang Anda masukkan tidak valid. Harap masukkan nomor dengan format internasional tanpa tanda plus (+)._`);
+            return await reply(
+                m,
+                `_❌ Nomor tidak valid._\nPastikan menggunakan format internasional tanpa + atau karakter lain. Contoh: 6281234567890`
+            );
         }
 
-        const userJid = `${phoneNumber}@s.whatsapp.net`;
+        // Pastikan JID WhatsApp valid
+        const userJid = phoneNumber.includes("@s.whatsapp.net")
+            ? phoneNumber
+            : `${phoneNumber}@s.whatsapp.net`;
 
-        // Mengecek apakah nomor terdaftar di WhatsApp
         const result = await sock.onWhatsApp(userJid);
 
-        if (result && result.length > 0 && result[0].exists) {
-            return await reply(m, `_Nomor ${phoneNumber} terdaftar di WhatsApp._`);
+        if (result?.[0]?.exists) {
+            return await reply(m, `✅ _Nomor *${phoneNumber}* terdaftar di WhatsApp._`);
         } else {
-            return await reply(m, `_Nomor ${phoneNumber} tidak ditemukan di WhatsApp._`);
+            return await reply(m, `❌ _Nomor *${phoneNumber}* tidak ditemukan di WhatsApp._`);
         }
+
     } catch (error) {
         console.error("Kesalahan di fungsi handle:", error);
-
-        const errorMessage = error.message || "Terjadi kesalahan tak dikenal.";
+        const errorMessage = error?.message || "Terjadi kesalahan tak dikenal.";
         return await sock.sendMessage(
             remoteJid,
-            { text: `_Error: ${errorMessage}_` },
+            { text: `_⚠️ Error: ${errorMessage}_` },
             { quoted: message }
         );
     }
@@ -40,8 +49,8 @@ async function handle(sock, messageInfo) {
 
 module.exports = {
     handle,
-    Commands    : ["cekuser"],
-    OnlyPremium : false,
-    OnlyOwner   : false,
-    limitDeduction  : 1, // Jumlah limit yang akan dikurangi
+    Commands: ["cekuser"],
+    OnlyPremium: false,
+    OnlyOwner: false,
+    limitDeduction: 1, // Jumlah limit yang akan dikurangi
 };
