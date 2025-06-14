@@ -18,7 +18,7 @@ Script **Autoresbot** resmi menjadi **Open Source** dan dapat digunakan secara g
 
 const moment       = require('moment-timezone');
 
-const CONNECTION   = 'qr'; // qr atau pairing
+const CONNECTION   = 'pairing'; // qr atau pairing
 const OWNER_NAME   = 'Autoresbot';
 const NOMOR_BOT    = '6285124002196'; // 628xx nomor wa
 const DESTINATION  = 'group'; // group , private, both
