@@ -5,6 +5,7 @@ const { getGroupMetadata }      = require("@lib/cache");
 const config                    = require("@config");
 const { sendImageAsSticker }    = require("@lib/exif");
 const chalk                     = require('chalk');
+const { logTracking }        = require("@lib/utils");
 
 const lastMessageTime           = {};
 
@@ -93,6 +94,7 @@ async function process(sock, messageInfo) {
                     await sock.sendMessage(remoteJid,{ document: buffer, fileName: media, mimetype: 'application/zip'}, { quoted: message });
                     
                 }
+                logTracking(`List Handler - ${sender}`);
 
                 // await sendMediaMessage(sock, remoteJid, buffer, text, message);
             } else {

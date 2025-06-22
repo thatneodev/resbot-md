@@ -2,6 +2,7 @@ const { getDataByGroupId }  = require('@lib/list');
 const fs                    = require('fs').promises;
 const config                    = require("@config");
 const chalk                     = require('chalk');
+const { logTracking }    = require('@lib/utils');
 const lastMessageTime           = {};
 
 async function process(sock, messageInfo) {
@@ -42,6 +43,8 @@ async function process(sock, messageInfo) {
         } else {
             await sendTextMessage(sock, remoteJid, text, message);
         }
+
+        logTracking(`Respon Handler - ${remoteJid}`);
         return false;
     } catch (error) {
         console.error("Error processing message:", error);

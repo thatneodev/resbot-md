@@ -1,5 +1,5 @@
 const { findUser, updateUser } = require("@lib/users");
-const { formatDuration }        = require("@lib/utils"); // Fungsi untuk menghitung durasi waktu
+const { formatDuration, logTracking }        = require("@lib/utils"); // Fungsi untuk menghitung durasi waktu
 const { logCustom }             = require("@lib/logger");
 const mess                      = require('@mess');
 
@@ -33,6 +33,7 @@ async function process(sock, messageInfo) {
                     .replace('@alasan', userAfk.afk.alasan ? `\n\n📌 ${userAfk.afk.alasan}` : "\n\n📌 Tanpa Alasan");
         
                 if (afkMessage) {
+                    logTracking(`Afk Handler - ${sender}`);
                     await sock.sendMessage(remoteJid, { text: afkMessage }, { quoted: message });
                 }
             }
@@ -52,7 +53,9 @@ async function process(sock, messageInfo) {
                     if (mentionedUser?.status === "afk" && mentionedUser.afk) {
                         const afkMessage = buildAfkMessage(mentionedUser.name || "Pengguna", mentionedUser.afk);
                         if(afkMessage) {
+                            logTracking(`Afk Handler - ${sender}`);
                             await sock.sendMessage(remoteJid, { text: afkMessage }, { quoted: message });
+                            
                         }
                         break; // Keluar dari loop setelah mengirim pesan pertama
                     }

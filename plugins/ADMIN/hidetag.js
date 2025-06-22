@@ -3,7 +3,9 @@ const { downloadQuotedMedia, downloadMedia, sendMessageWithMention } = require("
 const fs = require("fs").promises;
 const { getGroupMetadata } = require("@lib/cache");
 const { sendImageAsSticker } = require("@lib/exif");
+const { isOwner }  = require("@lib/users");
 const config = require("@config");
+
 
 function getMediaContent(media) {
     if (media.type === 'video' || media.type === 'image') {
@@ -12,6 +14,8 @@ function getMediaContent(media) {
     return media.content || media.text;
 }
 
+
+ 
 
 async function handle(sock, messageInfo) {
     const { remoteJid, isGroup,  message, sender, content, isQuoted, type } = messageInfo;
@@ -23,7 +27,10 @@ async function handle(sock, messageInfo) {
         const groupMetadata = await getGroupMetadata(sock, remoteJid);
         const participants  = groupMetadata.participants;
         const isAdmin       = participants.some(participant => participant.id === sender && participant.admin);
-        if(!isAdmin) {
+
+        const isOwnerUsers      = await isOwner(sender);
+
+        if(!isAdmin && !isOwnerUsers) {
             await sock.sendMessage(remoteJid, { text: mess.general.isAdmin }, { quoted: message });
             return;
         }
@@ -106,7 +113,7 @@ async function sendMedia(sock, remoteJid, type, mediaPath, caption, message, par
 
 module.exports = {
     handle,
-    Commands    : ['h', 'hidetag', 'hidetak'],
+    Commands    : ['hidetag', 'h','hidetak'],
     OnlyPremium : false,
     OnlyOwner   : false,
 };

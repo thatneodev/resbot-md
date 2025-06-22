@@ -11,18 +11,20 @@ const autoAi                    = require('@lib/autoai');
 const autoSimi                  = require('@lib/autosimi');
 const autoRusuh                 = require('@lib/autorusuh');
 const { getGroupMetadata, findParticipantLatest }      = require("@lib/cache");
-const { logWithTime, isUrlInText, toText, sendMessageWithMention }    = require('@lib/utils');
+const { logWithTime, isUrlInText, toText, sendMessageWithMention, sendMessageWithMentionNotQuoted, logTracking }    = require('@lib/utils');
 const { findMessageById, editMessageById }  = require("@lib/chatManager");
 const { sendImageAsSticker } = require('@lib/exif');;
 const notifiedUsers = new Set();
 const rateLimit_blacklist = {};
 const notifiedBlacklistUsers = new Set();
 
+
+
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 
 async function process(sock, messageInfo) {
-    const { m, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isForwarded, isTagComunity } = messageInfo;
+    const { m, id, sender, isBot, pushName, message, isGroup, prefix, command, fullText, type, isQuoted, isTagSw, isTagMeta, isForwarded, isTagComunity, mentionedJid } = messageInfo;
     let { remoteJid } = messageInfo;
 
     const result = findParticipantLatest(sender);
@@ -61,6 +63,7 @@ async function process(sock, messageInfo) {
 
         // Fungsi untuk menghapus pesan
         const deleteMessage = async () => {
+            logTracking(`Menghapus pesan di grub (${command})`)
             const result = await sock.sendMessage(remoteJid, {
                 delete: { remoteJid, id, participant: sender }
             });
@@ -68,13 +71,16 @@ async function process(sock, messageInfo) {
 
         // Fungsi untuk memproses kick anggota
         const kickParticipant = async () => {
+            logTracking(`Kick peserta dari grub (${command})`)
             await sock.groupParticipantsUpdate(remoteJid, [sender], 'remove');
         };
 
         // Kirim pesan
         const sendText = async (text, isquoted = false) => {
+            logTracking(`Handler - mengirim pesan teks (${command})`)
             if(isquoted) {
-                await sendMessageWithMention(sock, remoteJid, text, message);
+                //await sendMessageWithMention(sock, remoteJid, text, message);
+                await sendMessageWithMentionNotQuoted(sock, remoteJid, text);
             }else {
                 await sock.sendMessage(remoteJid, { text }, { quoted: message });
             }
@@ -139,6 +145,34 @@ async function process(sock, messageInfo) {
             await deleteMessage();
             return false;
         }
+
+
+
+        // ANTI HIDETAG V2
+         if (!isAdmin && fitur.antihidetag2 && mentionedJid.length > 0) {
+            logWithTime('SYSTEM',`Deteksi fitur antihidetagv2`);
+        
+            const hidden = !mentionedJid.some(jid => fullText.includes(jid.replace('@s.whatsapp.net', '')));
+            if (hidden) {
+                await deleteMessage();
+                await kickParticipant();
+                //console.log(`Hidden tag terdeteksi oleh ${sender}`);
+                return false;
+            }
+        }
+
+        // ANTI HIDETAG V1
+         if (!isAdmin && fitur.antihidetag && mentionedJid.length > 0) {
+            logWithTime('SYSTEM',`Deteksi fitur antihidetag`);
+        
+            const hidden = !mentionedJid.some(jid => fullText.includes(jid.replace('@s.whatsapp.net', '')));
+            if (hidden) {
+                await deleteMessage();
+                //console.log(`Hidden tag terdeteksi oleh ${sender}`);
+                return false;
+            }
+        }
+
 
          // Detectblacklist2
         if (fitur.detectblacklist2 && user) {

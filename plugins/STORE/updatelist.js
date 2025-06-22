@@ -36,7 +36,15 @@ async function handle(sock, messageInfo) {
         
 
         // Pisahkan keyword dan teks
-        const [keyword, text] = content.split('|').map(item => item.trim());
+        //const [keyword, text] = content.split('|').map(item => item.trim());
+
+        let text = '';
+        let keyword = '';
+
+        const parts = content.split('|');
+        keyword = parts.shift().trim(); // Keyword tetap di-trim untuk membersihkan spasi ekstra di awal & akhir
+        text = parts.join('|');  // Gabungkan sisa elemen tanpa mengubah spasi asl
+
         const lowercaseKeyword = keyword.trim().toLowerCase();
 
         if (!keyword || !text) {

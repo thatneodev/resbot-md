@@ -1,11 +1,12 @@
 const { addUser, findUser, updateUser, isOwner }     = require("@lib/users");
 const { SLRcheckMessage }                   = require("@lib/slr");
 const { findGroup, addGroup, isUserBlocked, isFiturBlocked } = require("@lib/group");
-const { logWithTime, warning }              = require('@lib/utils');
+const { logWithTime, warning, logTracking }              = require('@lib/utils');
 const mess                  = require('@mess');
 const { getGroupMetadata }  = require("@lib/cache");
 
 const notifiedUsers = new Set();
+
 
 
 async function process(sock, messageInfo) {
@@ -79,6 +80,7 @@ async function process(sock, messageInfo) {
                 const notifKey = `ban-${remoteJid}-${sender}`;
                 if (!notifiedUsers.has(notifKey)) {
                     notifiedUsers.add(notifKey);
+                    logTracking(`User Handler - ban-${remoteJid}-${sender}`);
                     await sock.sendMessage(remoteJid, { text: mess.general.isBaned }, { quoted: message });
                 }
 
@@ -92,6 +94,7 @@ async function process(sock, messageInfo) {
                 const notifKey = `fiturblocked-${remoteJid}-${command}`;
                 if (!notifiedUsers.has(notifKey)) {
                     notifiedUsers.add(notifKey);
+                    logTracking(`User Handler - fiturblocked-${remoteJid}-${command}`);
                     await sock.sendMessage(remoteJid, { text: mess.general.fiturBlocked }, { quoted: message });
                 }
 
@@ -106,6 +109,7 @@ async function process(sock, messageInfo) {
                     const participants  = groupMetadata.participants;
                     const isAdmin       = participants.some(participant => participant.id === mentionedJid[0] && participant.admin);
                     if(isAdmin) {
+                        logTracking(`User Handler - SLR Fitur on`);
                         await sock.sendMessage(remoteJid, { text: isSlr }, { quoted: message });
                         return;
                     }
@@ -122,7 +126,7 @@ async function process(sock, messageInfo) {
                 const notifKey = `block-${sender}`;
                 if (!notifiedUsers.has(notifKey)) {
                     notifiedUsers.add(notifKey); // Tandai sudah diberi notifikasi
-
+                    logTracking(`User Handler - block-${sender}`);
                     await sock.sendMessage(remoteJid, { text: mess.general.isBlocked }, { quoted: message });
                 }
                 

@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.2.1
+║ 📦 Version   : 4.2.2
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -27,10 +27,11 @@ const { updateParticipant }       = require("@lib/cache");
 const lastMessageTime           = {};
 const path                      = require('path');
 const { handleActiveFeatures }  = require('./lib/participant_update');
-const { logWithTime, log, danger, findClosestCommand }  = require('@lib/utils');
+const { logWithTime, log, danger, findClosestCommand, logTracking }  = require('@lib/utils');
 const { isOwner, isPremiumUser, updateUser, findUser }  = require("@lib/users");
 const pluginsPath = path.join(process.cwd(), 'plugins');
 const lastSent_participantUpdate = {};
+
 
 
 const { reloadPlugins }          = require("@lib/plugins");
@@ -121,12 +122,14 @@ async function processMessage(sock, messageInfo) {
 
                 // Cek apakah perintah ini hanya untuk pengguna premium
                 if (plugin.OnlyPremium && !isPremiumUsers && !isOwnerUsers) {
+                    logTracking(`Handler - Bukan premium (${command})`)
                     await sock.sendMessage(remoteJid, { text: mess.general.isPremium }, { quoted: message });
                     return;
                 }
 
                 // Cek apakah perintah ini hanya untuk owner
                 if (plugin.OnlyOwner && !isOwnerUsers) {
+                    logTracking(`Handler - Bukan Owner (${command})`)
                     await sock.sendMessage(remoteJid, { text: mess.general.isOwner }, { quoted: message });
                     return;
                 }
@@ -139,6 +142,7 @@ async function processMessage(sock, messageInfo) {
 
                         const isLimitExceeded = dataUsers.limit < plugin.limitDeduction || dataUsers.limit < 1;
                         if (isLimitExceeded) {
+                            logTracking('Handler - Limit habis ')
                             await sock.sendMessage(remoteJid, { text: mess.general.limit }, { quoted: message });
                             return;
                         }
@@ -155,6 +159,9 @@ async function processMessage(sock, messageInfo) {
 
                 const pluginResult = await plugin.handle(sock, messageInfo);
 
+
+                logTracking(`Plugins - ${command} dijalankan oleh ${sender}`)
+
                 // Cek apakah plugin meminta untuk menghentikan eksekusi
                 if (pluginResult === false) {
                     return;
@@ -166,6 +173,7 @@ async function processMessage(sock, messageInfo) {
         if(config.commandSimilarity && !commandFound) {
             const closestCommand = findClosestCommand(command, plugins);
             if (closestCommand && command != '' && fullText.length < 20 && prefix) {
+                logTracking(`Handler - Command tidak ditemukan (${command})`)
                 logCustom('info', `_Command *${command}* tidak ditemukan_ \n\n_Apakah maksud Anda *.${closestCommand}*?_`, `ERROR-COMMAND-NOT-FOUND.txt`);
                 await sock.sendMessage(remoteJid, { text: `_Command *${command}* tidak ditemukan_ \n\n_Apakah maksud Anda *.${closestCommand}*?_` }, { quoted: message });
             }

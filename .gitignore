@@ -5,6 +5,7 @@ lib/key.txt
 logs/      
 logs_panel/      
 plugins_backup/
+tracking_action/
 session/
 catatan update.txt
 npm-debug.log           

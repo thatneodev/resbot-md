@@ -1,5 +1,5 @@
 const { findGroup } = require("@lib/group");
-const { logWithTime } = require('@lib/utils');
+const { logWithTime, logTracking } = require('@lib/utils');
 
 async function process(sock, messageInfo) {
     const { remoteJid, command } = messageInfo;
@@ -18,6 +18,7 @@ async function process(sock, messageInfo) {
             if (fitur.mute) {
                 if(command != 'unmute') {
                     logWithTime('System',`GRUB SEDANG DI MUTE`);
+                    logTracking(`HANDLER - GRUB SEDANG DI MUTE (${command})`);
                     return false; // Stop
                 }
             }

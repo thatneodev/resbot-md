@@ -3,7 +3,7 @@ const ONLY_GC_SEWA = false; // jika true maka grub tanpa sewa tidak akan di resp
 
 const { findSewa, deleteSewa }  = require("@lib/sewa");
 const config                    = require("@config");
-const { selisihHari, danger }   = require("@lib/utils");
+const { selisihHari, danger, logTracking }   = require("@lib/utils");
 const { logCustom }             = require("@lib/logger");
 const { getGroupMetadata }      = require("@lib/cache");
 const mess                      = require('@mess');
@@ -16,6 +16,7 @@ const nonSewaGroups     = new Set();
 async function leaveGroupWithRetry(sock, remoteJid, maxRetries = 3) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
+        logTracking(`Sewa Handler - keluar dari grub ${remoteJid}`);
         await sock.groupLeave(remoteJid);
         console.log(`Berhasil keluar dari grup pada percobaan ke-${attempt}`);
         break; // keluar dari loop jika berhasil
@@ -57,6 +58,7 @@ async function process(sock, messageInfo) {
                 if (mess.handler.sewa_notif) {
                     let warningMessage = mess.handler.sewa_notif
                         .replace('@date', selisihHariSewa);
+                        logTracking(`Sewa Handler - Send notif sewa ke ${remoteJid}`);
                         await sock.sendMessage(remoteJid, { text : warningMessage, mentions: participants.map(p => p.id) }, { quoted : message });
                 }
 
@@ -69,6 +71,7 @@ async function process(sock, messageInfo) {
             if (mess.handler.sewa_out) {
                 let warningMessage = mess.handler.sewa_out
                     .replace('@ownernumber', config.owner_number[0]);
+                    logTracking(`Sewa Handler - Send notif out sewa ke ${remoteJid}`);
                     await sock.sendMessage(remoteJid, { text : warningMessage, mentions: participants.map(p => p.id) }, { quoted : message });
             }
 
