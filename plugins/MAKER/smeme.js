@@ -7,8 +7,8 @@ const ApiAutoresbot = require("api-autoresbot");
 const config = require("@config");
 
 async function handle(sock, messageInfo) {
-    const { remoteJid, message, type, isQuoted, content, prefix, command } = messageInfo;
 
+    const { remoteJid, message, type, isQuoted, content, prefix, command } = messageInfo;
     try {
         // Cek jika tidak ada teks/konten
         if (!content) {

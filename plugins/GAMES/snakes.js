@@ -3,8 +3,6 @@ const DATABASE = {}; // Simpan game di RAM
 const MONEY_MENANG = 100;
 const opsiLoading = 'sticker'; // sticker, emoticon
 
-const { sendImageAsSticker } = require("@lib/exif");
-const config = require("@config");
 const fs = require("fs");
 const path = require("path");
 
@@ -87,7 +85,7 @@ async function handle(sock, messageInfo) {
         }
     
         infoText += `\nStatus: ${game.started ? '🟢 Dimulai' : '🔴 Belum dimulai'}`;
-        infoText += `\n\n✅ Gunakan *.snakes join* untuk bergabung\n🚀 Gunakan *.snakes start* untuk memulai game`;
+        infoText += `\n\n✅ Gunakan *.snakes join* untuk bergabung\n🚀 Gunakan *.snakes start* untuk memulai game\ndan *.snakes reset* untuk mereset permainan`;
     
         return await sendMessageWithMention(sock, remoteJid, infoText, message);
     }
@@ -234,6 +232,17 @@ async function handle(sock, messageInfo) {
             await sock.sendMessage(remoteJid, { text: '❌ Gagal mengambil gambar papan dari api.' }, { quoted: message });
         }
     }
+
+    // Reset game
+    if (command === 'reset') {
+        if (game.players.length === 0 && !game.started) {
+            return await sock.sendMessage(remoteJid, { text: '⚠️ Tidak ada permainan yang sedang berlangsung untuk direset.' }, { quoted: message });
+        }
+
+        delete DATABASE[remoteJid];
+        return await sock.sendMessage(remoteJid, { text: '✅ Permainan direset. Gunakan *.snakes join* untuk memulai lagi.' }, { quoted: message });
+    }
+
 
 
 

@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.2.2
+║ 📦 Version   : 4.2.3
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -15,6 +15,8 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 Script **Autoresbot** resmi menjadi **Open Source** dan dapat digunakan secara gratis:
 🔗 https://autoresbot.com
 */
+
+
 
 console.log(`[✔] Start App ...`);
 
@@ -37,7 +39,11 @@ if (major < 20 || major >= 21) {
 process.env.TZ = 'Asia/Jakarta'; // Lokasi Timezone utama
 require('module-alias/register');
 require('@lib/version');
+
 const { checkAndInstallModules }  = require('@lib/utils');
+const config = require("@config");
+const axios = require("axios");
+
 
 (async () => {
     try {
@@ -53,10 +59,42 @@ const { checkAndInstallModules }  = require('@lib/utils');
 
         const { start_app } = require('@lib/startup');
         await start_app();
+
     } catch (err) {
-        console.error('Error dalam proses start_app:', err.message);
+        onsole.error('Error dalam proses start_app:', err.message);
+        await reportCrash('inactive');
+        process.exit(1);
     }
 })();
+
+
+const BOT_NUMBER = config.phone_number_bot || "";
+async function reportCrash(status) {
+  //const reportUrl = `https://autoresbot.com/api/sewabot/${BOT_NUMBER}/status?status=${encodeURIComponent(status)}`;
+
+  // const reportUrl = `https://example.com/api/${BOT_NUMBER}/status?status=${encodeURIComponent(status)}`;
+  // try {
+  //   await axios.get(reportUrl);
+  //   console.log('✅ Laporan crash berhasil dikirim.');
+  // } catch (err) {
+  //   console.error('❌ Gagal kirim laporan crash:', err.message);
+  // }
+}
+
+
+
+// ─── Error Handler ───────────────────────────────────────
+process.on('uncaughtException', async (err) => {
+  console.error('❌ Uncaught Exception:', err);
+  await reportCrash('inactive');
+  process.exit(1);
+});
+
+process.on('unhandledRejection', async (reason, promise) => {
+  console.error('❌ Unhandled Rejection:', reason);
+  await reportCrash('inactive');
+  process.exit(1);
+});
 
 
 

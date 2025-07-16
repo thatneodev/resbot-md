@@ -4,8 +4,7 @@ const { selisihHari, hariini }  = require("@lib/utils");
 const { deleteCache }           = require('@lib/globalCache');
 
 async function handle(sock, messageInfo) {
-    const { remoteJid, message, content, sender, prefix, command } = messageInfo;
-    
+    let { remoteJid, message, content, sender, prefix, command } = messageInfo;
     
     // Validasi input kosong atau tidak sesuai format
     if (!content || content.trim() === '') {
@@ -17,6 +16,9 @@ async function handle(sock, messageInfo) {
             { quoted: message }
         );
     }
+
+    // Bersihkan jika ada ?mode di akhir link
+    content = content.replace(/\?mode=[^ ]+/gi, '');
 
     // Split content menjadi array untuk memisahkan link dan jumlah hari
     const args = content.trim().split(" ");

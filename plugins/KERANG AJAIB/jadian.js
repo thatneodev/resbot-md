@@ -1,6 +1,6 @@
 const mess = require('@mess');
-const { sendMessageWithMention } = require('@lib/utils');
-
+const { getGroupMetadata }      = require("@lib/cache");
+const { sendMessageWithMention, logTracking } = require('@lib/utils');
 async function handle(sock, messageInfo) {
     const { remoteJid, message, isGroup, sender } = messageInfo;
 
@@ -11,7 +11,13 @@ async function handle(sock, messageInfo) {
     }
 
     try {
-        const groupMetadata = await sock.groupMetadata(remoteJid);
+        logTracking(`jadian.js - groupMetadata (${remoteJid})`)
+         const groupMetadata = await getGroupMetadata(sock, remoteJid);
+        if (!groupMetadata) {
+            console.error("Failed to fetch group metadata");
+            return;
+        }
+
         const groupName = groupMetadata.subject;
         const participants = groupMetadata.participants;
 

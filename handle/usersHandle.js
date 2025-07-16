@@ -143,7 +143,7 @@ async function process(sock, messageInfo) {
                 level += 1; // Tambah level
                 level_cache = 0; // Reset level_cache
             }
-
+  
             await updateUser(sender,  { level, level_cache } )
 
         }else {

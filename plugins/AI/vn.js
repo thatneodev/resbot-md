@@ -13,7 +13,7 @@ async function handle(sock, messageInfo) {
     const text = content && content.trim() !== '' ? content : isQuoted?.text ?? null;
 
     try {
-        if (!text.trim()) {
+        if (!text || text.trim().length < 1) {
             return await sock.sendMessage(remoteJid, {
                 text: `_⚠️ Format Penggunaan:_ \n\n_💬 Contoh:_ _*${prefix + command} halo google*_`
             }, { quoted: message });

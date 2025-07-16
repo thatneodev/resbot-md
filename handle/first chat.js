@@ -4,7 +4,7 @@ const { getGreeting }   = require('@lib/utils');
 async function process(sock, messageInfo) {
     const { sender, remoteJid, isGroup, message, pushName, fullText } = messageInfo;
 
-    // KOMENTARI INI UNTUK MEMATIKAN
+    // KOMENTARI INI UNTUK MENGHIDUPKAN
     return true;
 
     const salam = getGreeting();
