@@ -1,6 +1,8 @@
 const { tiktok }        = require('@scrape/tiktok');
 const { extractLink }   = require('@lib/utils');
 const { logCustom }     = require("@lib/logger");
+const { downloadToBuffer } = require("@lib/utils");
+
 
 /**
  * Mengirim pesan dengan kutipan (quoted message)
@@ -59,9 +61,12 @@ async function handle(sock, messageInfo) {
         // Memanggil API untuk mendapatkan data video TikTok
         const response = await tiktok(validLink);
 
+         // Download file ke buffer
+        const audioBuffer = await downloadToBuffer(response.no_watermark, 'mp4');
+
         // Mengirim video tanpa watermark dan caption
         await sock.sendMessage(remoteJid, {
-            video: { url: response.no_watermark },
+            video: audioBuffer,
             caption: response.title
         }, { quoted: message });
 

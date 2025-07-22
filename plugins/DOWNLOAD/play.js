@@ -2,6 +2,8 @@ const yts           = require('yt-search');
 const ApiAutoresbot = require('api-autoresbot');
 const config        = require('@config');
 const { logCustom } = require("@lib/logger");
+const { downloadToBuffer } = require("@lib/utils");
+
 
 // Fungsi untuk mengirim pesan dengan kutipan (quote)
 async function sendMessageWithQuote(sock, remoteJid, message, text) {
@@ -62,6 +64,7 @@ async function handle(sock, messageInfo) {
             url: video.url,
             format : 'm4a'
         });
+        
 
         if (response && response.status) {
 
@@ -72,16 +75,19 @@ async function handle(sock, messageInfo) {
                 { quoted: message }
             );
 
-            // Kirim audio file
-            await sock.sendMessage(
-                remoteJid,
-                {
-                    audio: { url: response.url },
-                    fileName: `yt.mp3`,
-                    mimetype: 'audio/mp4',
-                },
-                { quoted: message }
-            );
+            
+                    // Download file ke buffer
+                   const audioBuffer = await downloadToBuffer(response.url, 'mp3');
+
+                    await sock.sendMessage(
+                        remoteJid,
+                        {
+                            audio: audioBuffer,
+                            fileName: `yt.mp3`,
+                            mimetype: 'audio/mp4',
+                        },
+                        { quoted: message }
+                    );
         } else {
             await sendReaction(sock, message, "❗");
         }

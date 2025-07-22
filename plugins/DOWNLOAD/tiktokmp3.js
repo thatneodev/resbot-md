@@ -2,6 +2,7 @@ const { tiktok }            = require('@scrape/tiktok');
 const { forceConvertToM4a } = require('@lib/utils');
 const { extractLink }       = require('@lib/utils');
 const { logCustom }         = require("@lib/logger");
+const { downloadToBuffer } = require("@lib/utils");
 
 async function sendMessageWithQuote(sock, remoteJid, message, text) {
     await sock.sendMessage(remoteJid, { text }, { quoted: message });
@@ -65,9 +66,11 @@ async function handle(sock, messageInfo) {
             //console.warn("Peringatan: Gagal mengonversi ke M4A, menggunakan URL asli.", error);
         }
 
+         const audioBuffer = await downloadToBuffer(outputUrl, 'mp3');
+
                 // Mengirim video tanpa watermark dan caption
         await sock.sendMessage(remoteJid, {
-            audio: { url: outputUrl },
+            audio: audioBuffer,
             fileName: `tiktok.mp3`,
             mimetype: 'audio/mp4'
         }, { quoted: message });

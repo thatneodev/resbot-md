@@ -3,6 +3,7 @@ const config        = require("@config");
 const { isURL }     = require("@lib/utils");
 const mess          = require("@mess");
 const { logCustom } = require("@lib/logger");
+const { downloadToBuffer } = require("@lib/utils");
 
 async function sendMessageWithQuote(sock, remoteJid, message, text, options = {}) {
     await sock.sendMessage(remoteJid, { text }, { quoted: message, ...options });
@@ -30,9 +31,13 @@ async function handle(sock, messageInfo) {
         // Memanggil API dengan parameter
         const response = await api.get('/api/downloader/facebook', { url: content });
 
+         // Download file ke buffer
+        const audioBuffer = await downloadToBuffer(response.data[0], 'mp4');
+
+
         // Menangani respons API
         if (response.code === 200 && response.data) {
-            await sock.sendMessage(remoteJid, { video: { url: response.data[0] } , mimetype: 'video/mp4', caption : mess.general.success}, { quoted: message })
+            await sock.sendMessage(remoteJid, { video: { url: audioBuffer } , mimetype: 'video/mp4', caption : mess.general.success}, { quoted: message })
         
         } else {
             logCustom('info', content, `ERROR-COMMAND-${command}.txt`);
