@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.2.3
+║ 📦 Version   : 4.2.6
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -50,7 +50,8 @@ const axios = require("axios");
       "follow-redirects",
       "qrcode-reader",
       "jimp",
-      "baileys@latest",
+      "baileys@6.7.18",
+      "api-autoresbot@1.0.6",
     ]);
 
     const { start_app } = require("@lib/startup");

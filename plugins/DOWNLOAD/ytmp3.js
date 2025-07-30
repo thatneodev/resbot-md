@@ -43,10 +43,11 @@ async function handle(sock, messageInfo) {
     });
 
     // Validasi respons API
-    if (response.status && response.url) {
+    if (response.status) {
+      const url_media = response.data.url;
 
       // Download file ke buffer
-       const audioBuffer = await downloadToBuffer(response.url, 'mp3');
+      const audioBuffer = await downloadToBuffer(url_media, "mp3");
 
       await sock.sendMessage(
         remoteJid,

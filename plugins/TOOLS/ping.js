@@ -1,7 +1,8 @@
 const axios = require('axios');
 
 async function handle(sock, messageInfo) {
-    const { remoteJid, message, content } = messageInfo;
+    const { remoteJid, message, content, sender } = messageInfo;
+
     const domain = "https://www.google.com";
 
     try {
@@ -14,7 +15,7 @@ async function handle(sock, messageInfo) {
             await sock.sendMessage(
                 remoteJid,
                 {
-                    text: `⌬ _Response Time :_ ${kecepatanResponS.toFixed(6)} s`
+                    text: `⌬ _Response Time :_ ${kecepatanResponS.toFixed(6)} s`,
                 },
                 { quoted: message }
             );

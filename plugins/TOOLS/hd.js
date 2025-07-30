@@ -1,13 +1,8 @@
-const {
-  downloadQuotedMedia,
-  downloadMedia,
-  reply,
-  uploadTmpFile,
-  downloadToBuffer,
-} = require("@lib/utils");
+const { downloadQuotedMedia, downloadMedia, reply } = require("@lib/utils");
 const fs = require("fs");
 const path = require("path");
 const mess = require("@mess");
+const ApiAutoresbot = require("api-autoresbot");
 const config = require("@config");
 
 async function handle(sock, messageInfo) {
@@ -38,18 +33,24 @@ async function handle(sock, messageInfo) {
       throw new Error("File media tidak ditemukan setelah diunduh.");
     }
 
-    const upload = await uploadTmpFile(mediaPath);
-    if (upload.status) {
-      const url = upload.fileUrl;
+    const api = new ApiAutoresbot(config.APIKEY);
+    const response = await api.tmpUpload(mediaPath);
 
-      const endpoint_api = `https://api.autoresbot.com/api/tools/remini?apikey=${config.APIKEY}&url=${url}`;
-      // Download file ke buffer
-      const audioBuffer = await downloadToBuffer(endpoint_api, "jpg");
+    if (!response || response.code !== 200) {
+      throw new Error("File upload gagal atau tidak ada URL.");
+    }
+    const url = response.data.url;
+    const MediaBuffer = await api.getBuffer("/api/tools/remini", { url });
 
+    if (!Buffer.isBuffer(MediaBuffer)) {
+      throw new Error("Invalid response: Expected Buffer.");
+    }
+
+    if (response && MediaBuffer) {
       await sock.sendMessage(
         remoteJid,
         {
-          image: audioBuffer,
+          image: MediaBuffer,
           caption: mess.general.success,
         },
         { quoted: message }

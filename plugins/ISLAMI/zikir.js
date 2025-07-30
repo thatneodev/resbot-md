@@ -1,41 +1,54 @@
-const ApiAutoresbot = require('api-autoresbot');
+const ApiAutoresbot = require("api-autoresbot");
 const config = require("@config");
 
-
 async function handle(sock, messageInfo) {
-    const { remoteJid, message } = messageInfo;
+  const { remoteJid, message } = messageInfo;
 
-    try {
-        // Mengirim reaksi loading
-        await sock.sendMessage(remoteJid, { react: { text: "⏰", key: message.key } });
+  try {
+    // Mengirim reaksi loading
+    await sock.sendMessage(remoteJid, {
+      react: { text: "⏰", key: message.key },
+    });
 
-        const api = new ApiAutoresbot(config.APIKEY);
+    const api = new ApiAutoresbot(config.APIKEY);
 
-        // Memanggil API zikir random
-        const response = await api.get('/api/random/zikir');
+    // Memanggil API zikir random
+    const response = await api.get("/api/islami/zikir");
 
-        // Validasi dan pemformatan respons
-        if (response?.data) {
-            const zikirMessage = `_*Zikir Harian*_:\n\n${response.data}`;
-            await sock.sendMessage(remoteJid, { text: zikirMessage }, { quoted: message });
-
-        } else {
-            // Pesan jika data kosong
-            const noDataMessage = "Maaf, tidak ada data zikir yang tersedia saat ini. Coba lagi nanti.";
-            await sock.sendMessage(remoteJid, { text: noDataMessage }, { quoted: message });
-        }
-    } catch (error) {
-        console.error("Error saat memanggil API Zikir:", error);
-
-        // Pesan kesalahan kepada pengguna
-        const errorMessage = `Maaf, terjadi kesalahan saat memproses permintaan Anda. Coba lagi nanti.\n\nDetail Kesalahan: ${error.message}`;
-        await sock.sendMessage(remoteJid, { text: errorMessage }, { quoted: message });
+    // Validasi dan pemformatan respons
+    if (response?.data) {
+      const zikirMessage = `_*Zikir Harian*_:\n\n${response.data}`;
+      await sock.sendMessage(
+        remoteJid,
+        { text: zikirMessage },
+        { quoted: message }
+      );
+    } else {
+      // Pesan jika data kosong
+      const noDataMessage =
+        "Maaf, tidak ada data zikir yang tersedia saat ini. Coba lagi nanti.";
+      await sock.sendMessage(
+        remoteJid,
+        { text: noDataMessage },
+        { quoted: message }
+      );
     }
+  } catch (error) {
+    console.error("Error saat memanggil API Zikir:", error);
+
+    // Pesan kesalahan kepada pengguna
+    const errorMessage = `Maaf, terjadi kesalahan saat memproses permintaan Anda. Coba lagi nanti.\n\nDetail Kesalahan: ${error.message}`;
+    await sock.sendMessage(
+      remoteJid,
+      { text: errorMessage },
+      { quoted: message }
+    );
+  }
 }
 
 module.exports = {
-    handle,
-    Commands    : ['zikir'],
-    OnlyPremium : false, 
-    OnlyOwner   : false
+  handle,
+  Commands: ["zikir"],
+  OnlyPremium: false,
+  OnlyOwner: false,
 };
