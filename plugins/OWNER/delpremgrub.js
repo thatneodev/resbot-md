@@ -67,7 +67,9 @@ async function handle(sock, messageInfo) {
     for (const member of participants) {
       try {
         const id_users = member.id;
-        let userData = await findUser(id_users);
+        let dataUsers = await findUser(id_users);
+        if (!dataUsers) continue;
+        const [docId, userData] = dataUsers;
 
         if (userData && userData.premium) {
           userData.premium = null; // Hapus masa premium

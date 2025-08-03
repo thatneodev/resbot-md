@@ -1,5 +1,5 @@
 const config = require("@config");
-const { sendMessageWithMention } = require("@lib/utils");
+const { sendMessageWithMention, extractNumber } = require("@lib/utils");
 
 async function handle(sock, messageInfo) {
   const {
@@ -28,9 +28,13 @@ async function handle(sock, messageInfo) {
   }
 
   // Cek apakah yang ditandai adalah owner
-  const isOwner = config.owner_number
-    .map((num) => `${num}@s.whatsapp.net`)
-    .includes(mentionedJid[0]);
+
+  // Ambil number dari mention pertama
+  const mentionedNumber = extractNumber(mentionedJid[0]);
+
+  // Cek apakah number tersebut ada di config.owner_number
+  const isOwner =
+    mentionedNumber && config.owner_number.includes(mentionedNumber);
 
   // Tentukan array kemungkinan jawaban
   const gan = isOwner

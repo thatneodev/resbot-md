@@ -44,35 +44,19 @@ async function handle(sock, messageInfo) {
       );
     }
 
-    // Validasi format nomor (10-15 digit)
-    if (!/^\d{10,15}$/.test(nomorHp)) {
+    // Ambil data pengguna
+    let dataUsers = await findUser(nomorHp);
+
+    // Jika pengguna tidak ditemukan, tambahkan pengguna baru
+    if (!dataUsers) {
       return await sock.sendMessage(
         remoteJid,
-        {
-          text: `_Nomor tidak valid. Pastikan formatnya benar_\n\n_Contoh: *${
-            prefix + command
-          } 628xxx* 30_`,
-        },
+        { text: `⚠️ _Pengguna dengan nomor/tag tersebut tidak ditemukan._` },
         { quoted: message }
       );
     }
 
-    // Tambahkan @s.whatsapp.net ke nomor HP
-    nomorHp = `${nomorHp}@s.whatsapp.net`;
-
-    // Ambil data pengguna
-    let userData = await findUser(nomorHp);
-
-    // Jika pengguna tidak ditemukan, tambahkan pengguna baru
-    if (!userData) {
-      userData = {
-        money: 0,
-        role: "user",
-        status: "active",
-        premium: null, // Tidak ada masa premium sebelumnya
-      };
-      await addUser(nomorHp, userData); // Tambahkan pengguna baru
-    }
+    const [docId, userData] = dataUsers;
 
     // Hitung waktu premium baru dari hari ini
     const currentDate = new Date();

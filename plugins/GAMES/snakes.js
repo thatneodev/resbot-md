@@ -224,14 +224,10 @@ async function handle(sock, messageInfo) {
       const user = await findUser(sender);
 
       if (user) {
-        const moneyAdd = (user.money || 0) + MONEY_MENANG; // Default money ke 0 jika undefined
+        const [docId, userData] = user;
+        const moneyAdd = (userData.money || 0) + MONEY_MENANG; // Default money ke 0 jika undefined
         await updateUser(sender, { money: moneyAdd });
       } else {
-        await addUser(sender, {
-          money: MONEY_MENANG,
-          role: "user",
-          status: "active",
-        });
       }
 
       return await sendMessageWithMention(

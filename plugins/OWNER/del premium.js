@@ -32,20 +32,19 @@ async function handle(sock, messageInfo) {
 
     nomorHp = nomorHp.replace(/\D/g, "");
 
-    // Tambahkan @s.whatsapp.net ke nomor HP
-    nomorHp = `${nomorHp}@s.whatsapp.net`;
-
     // Ambil data pengguna
-    let userData = await findUser(nomorHp);
+    let dataUsers = await findUser(nomorHp);
 
     // Jika pengguna tidak ditemukan, tambahkan pengguna baru
-    if (!userData) {
+    if (!dataUsers) {
       return await sock.sendMessage(
         remoteJid,
         { text: "tidak ada user di temukan" },
         { quoted: message }
       );
     }
+
+    const [docId, userData] = dataUsers;
 
     userData.premium = null;
 

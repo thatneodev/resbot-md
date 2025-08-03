@@ -94,14 +94,10 @@ ${data.answer
     }
 
     if (user) {
-      const moneyAdd = (user.money || 0) + MoneyClaim; // Default money ke 0 jika undefined
+      const [docId, userData] = user;
+      const moneyAdd = (userData.money || 0) + MoneyClaim; // Default money ke 0 jika undefined
       await updateUser(sender, { money: moneyAdd });
     } else {
-      await addUser(sender, {
-        money: MoneyClaim,
-        role: "user",
-        status: "active",
-      });
     }
   }
 

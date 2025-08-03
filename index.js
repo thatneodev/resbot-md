@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.2.6
+║ 📦 Version   : 4.2.7
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -65,7 +65,6 @@ const axios = require("axios");
 
 const BOT_NUMBER = config.phone_number_bot || "";
 async function reportCrash(status) {
-  //const reportUrl = `https://autoresbot.com/api/sewabot/${BOT_NUMBER}/status?status=${encodeURIComponent(status)}`;
   // const reportUrl = `https://example.com/api/${BOT_NUMBER}/status?status=${encodeURIComponent(status)}`;
   // try {
   //   await axios.get(reportUrl);

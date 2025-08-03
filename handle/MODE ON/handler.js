@@ -27,6 +27,8 @@ const notifiedBlacklistUsers = new Set();
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const botNumber = config.phone_number_bot; // misalnya '1234'
+
 async function process(sock, messageInfo) {
   const {
     m,
@@ -78,9 +80,6 @@ async function process(sock, messageInfo) {
 
     const { fitur } = dataGroupSettings;
 
-    // Mencari pengguna
-    const user = await findUser(sender);
-
     // Mendapatkan metadata grup
     const groupMetadata = await getGroupMetadata(sock, remoteJid);
     const participants = groupMetadata.participants;
@@ -130,16 +129,19 @@ async function process(sock, messageInfo) {
       }
     }
 
+    // Mencari pengguna
+    const user = await findUser(sender);
+
     const isWhatsappLink = fullText
       .toLowerCase()
       .trim()
       .includes("chat.whatsapp.com");
+
     const isWhatsappSaluran = fullText
       .toLowerCase()
       .trim()
       .includes("whatsapp.com/channel/");
-    // messagesDefault.toLowerCase().trim().includes('chat.whatsapp.com')
-    // Anti-link wav2 : Hapus pesan dan kick jika URL whatsapp terdeteksi
+
     if (!isAdmin && fitur.antilinkwav2 && isWhatsappLink) {
       logWithTime("SYSTEM", `Deteksi fitur Anti-link wav2 : ${fullText}`);
       await deleteMessage();
@@ -185,9 +187,12 @@ async function process(sock, messageInfo) {
     if (!isAdmin && fitur.antihidetag2 && mentionedJid.length > 0) {
       logWithTime("SYSTEM", `Deteksi fitur antihidetagv2`);
 
-      const hidden = !mentionedJid.some((jid) =>
-        fullText.includes(jid.replace("@s.whatsapp.net", ""))
-      );
+      const hidden = !mentionedJid.some((jid) => {
+        // Ambil hanya angka sebelum @
+        const number = jid.split("@")[0];
+        return fullText.includes(number);
+      });
+
       if (hidden) {
         await deleteMessage();
         await kickParticipant();
@@ -200,9 +205,12 @@ async function process(sock, messageInfo) {
     if (!isAdmin && fitur.antihidetag && mentionedJid.length > 0) {
       logWithTime("SYSTEM", `Deteksi fitur antihidetag`);
 
-      const hidden = !mentionedJid.some((jid) =>
-        fullText.includes(jid.replace("@s.whatsapp.net", ""))
-      );
+      const hidden = !mentionedJid.some((jid) => {
+        // Ambil hanya angka sebelum @
+        const number = jid.split("@")[0];
+        return fullText.includes(number);
+      });
+
       if (hidden) {
         await deleteMessage();
         //console.log(`Hidden tag terdeteksi oleh ${sender}`);
@@ -214,10 +222,13 @@ async function process(sock, messageInfo) {
     if (fitur.detectblacklist2 && user) {
       logWithTime("SYSTEM", `Deteksi fitur Detect Blacklist`);
 
-      const status = user.status;
-      if (status === "blacklist") {
-        // user di blacklist
-        await kickParticipant();
+      if (user) {
+        const [docId, userData] = user;
+        const status = userData.status;
+        if (status === "blacklist") {
+          // user di blacklist
+          await kickParticipant();
+        }
       }
     }
 
@@ -225,29 +236,36 @@ async function process(sock, messageInfo) {
     if (fitur.detectblacklist && user) {
       logWithTime("SYSTEM", `Deteksi fitur Detect Blacklist`);
 
-      const status = user.status;
-      const userId = sender.split("@")[0]; // Mengambil ID pengguna
+      if (user) {
+        const [docId, userData] = user;
 
-      if (status === "blacklist") {
-        if (!notifiedBlacklistUsers.has(userId)) {
-          const warningMessage = `⚠️ _Peringatan Blacklist_ \n\n@${userId} Telah di blacklist`;
-          await sendText(warningMessage, true);
-          logWithTime(pushName, `User sedang di blacklist`);
-          notifiedBlacklistUsers.add(userId); // Tandai sebagai sudah diberi notifikasi
-        } else {
-          logWithTime(
-            pushName,
-            `User blacklist sudah diberi notifikasi sebelumnya`
-          );
+        const status = userData.status;
+        const userId = sender.split("@")[0]; // Mengambil ID pengguna
+
+        if (status === "blacklist") {
+          if (!notifiedBlacklistUsers.has(userId)) {
+            const warningMessage = `⚠️ _Peringatan Blacklist_ \n\n@${userId} Telah di blacklist`;
+            await sendText(warningMessage, true);
+            logWithTime(pushName, `User sedang di blacklist`);
+            notifiedBlacklistUsers.add(userId); // Tandai sebagai sudah diberi notifikasi
+          } else {
+            logWithTime(
+              pushName,
+              `User blacklist sudah diberi notifikasi sebelumnya`
+            );
+          }
+          return false;
         }
-        return false;
       }
     }
 
     if (fitur.detectblacklist && fitur.detectblacklist2) {
-      const status = user.status;
-      if (status === "blacklist") {
-        return false;
+      if (user) {
+        const [docId, userData] = user;
+        const status = userData.status;
+        if (status === "blacklist") {
+          return false;
+        }
       }
     }
 
@@ -340,7 +358,10 @@ async function process(sock, messageInfo) {
           const badwordAction = config.BADWORD.action.toLowerCase().trim();
 
           try {
-            await handleAction(badwordAction, sender);
+            if (user) {
+              const [docId, userData] = user;
+              await handleAction(badwordAction, sender);
+            }
           } catch (error) {
             console.error(
               "Terjadi kesalahan saat memproses tindakan badword:",
@@ -384,7 +405,10 @@ async function process(sock, messageInfo) {
         const badwordAction = config.BADWORD.action.toLowerCase().trim();
 
         try {
-          await handleAction(badwordAction, sender);
+          if (user) {
+            const [docId, userData] = user;
+            await handleAction(badwordAction, sender);
+          }
         } catch (error) {
           console.error(
             "Terjadi kesalahan saat memproses tindakan badword:",
@@ -563,7 +587,10 @@ async function process(sock, messageInfo) {
         const spamAction = config.SPAM.action.toLowerCase().trim();
 
         try {
-          await handleAction(spamAction, sender);
+          if (user) {
+            const [docId, userData] = user;
+            await handleAction(spamAction, sender);
+          }
         } catch (error) {
           console.error(
             "Terjadi kesalahan saat memproses tindakan spam:",
@@ -597,8 +624,14 @@ async function process(sock, messageInfo) {
     // Deteksi auto-ai aktif
     if (fitur?.autoai && command !== "on" && command !== "off" && !prefix) {
       const containsAI = fullText.toLowerCase().trim().includes("ai");
-      const isQuotedMessageFromBot =
-        isQuoted?.sender === `${config.phone_number_bot}@s.whatsapp.net`;
+      const isQuotedMessageFromBot = (() => {
+        if (!isQuoted?.sender) return false;
+
+        // Ambil angka sebelum @
+        const senderNumber = isQuoted.sender.split("@")[0];
+
+        return senderNumber === botNumber;
+      })();
 
       // Ambil isi pesan dari kutipan jika pesan berasal dari bot
       const content_old = isQuotedMessageFromBot
@@ -615,8 +648,16 @@ async function process(sock, messageInfo) {
     // Deteksi auto-simi aktif
     if (fitur?.autosimi && command !== "on" && command !== "off") {
       const containsSimi = fullText.toLowerCase().trim().includes("simi");
-      const isQuotedMessageFromBot =
-        isQuoted?.sender === `${config.phone_number_bot}@s.whatsapp.net`;
+
+      const isQuotedMessageFromBot = (() => {
+        if (!isQuoted?.sender) return false;
+
+        // Ambil angka sebelum @
+        const senderNumber = isQuoted.sender.split("@")[0];
+
+        return senderNumber === botNumber;
+      })();
+
       const content_old = isQuotedMessageFromBot
         ? isQuoted.text || isQuoted.content || ""
         : undefined;
@@ -629,8 +670,14 @@ async function process(sock, messageInfo) {
 
     // Deteksi auto-rusuh aktif
     if (fitur?.autorusuh && command !== "on" && command !== "off") {
-      const isQuotedMessageFromBot =
-        isQuoted?.sender === `${config.phone_number_bot}@s.whatsapp.net`;
+      const isQuotedMessageFromBot = (() => {
+        if (!isQuoted?.sender) return false;
+
+        // Ambil angka sebelum @
+        const senderNumber = isQuoted.sender.split("@")[0];
+
+        return senderNumber === botNumber;
+      })();
       await autoRusuh(sock, messageInfo, isQuotedMessageFromBot);
       return false;
     }

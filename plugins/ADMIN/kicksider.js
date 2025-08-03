@@ -72,13 +72,15 @@ async function handle(sock, messageInfo) {
 
       let successCount = 0;
       let failedCount = 0;
-
       for (const [index, member] of memberList.entries()) {
         if (index >= jumlahKick) break;
 
         await new Promise((resolve) => setTimeout(resolve, DELAY_KICK));
 
-        if (member === `${config.phone_number_bot}@s.whatsapp.net`) continue;
+        // Ambil nomor saja sebelum @
+        const memberNumber = member.split("@")[0];
+
+        if (memberNumber === config.phone_number_bot) continue;
 
         try {
           await sock.groupParticipantsUpdate(remoteJid, [member], "remove");

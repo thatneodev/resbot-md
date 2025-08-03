@@ -85,22 +85,24 @@ async function handle(sock, messageInfo) {
         const id_users = member.id;
 
         // Ambil data pengguna
-        let userData = await findUser(id_users);
+        let dataUsers = await findUser(id_users);
 
         // Hitung waktu premium baru dari hari ini
         const currentDate = new Date();
         currentDate.setDate(currentDate.getDate() + jumlahHariPremium);
 
         // Jika pengguna tidak ditemukan, tambahkan pengguna baru
-        if (!userData) {
-          userData = {
-            money: 0,
-            role: "user",
-            status: "active",
-            premium: currentDate.toISOString(), // Tidak ada masa premium sebelumnya
-          };
-          await addUser(id_users, userData);
+        if (!dataUsers) {
+          return await sock.sendMessage(
+            remoteJid,
+            {
+              text: `⚠️ _Pengguna dengan nomor/tag tersebut tidak ditemukan._`,
+            },
+            { quoted: message }
+          );
         }
+
+        const [docId, userData] = dataUsers;
 
         userData.premium = currentDate.toISOString();
         await updateUser(id_users, userData);

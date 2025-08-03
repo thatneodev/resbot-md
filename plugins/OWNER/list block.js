@@ -2,18 +2,21 @@ const { readUsers } = require("@lib/users");
 const { sendMessageWithMention } = require("@lib/utils");
 
 async function handle(sock, messageInfo) {
-  const { remoteJid, sender, message, senderType } = messageInfo;
+  const { remoteJid, message, senderType } = messageInfo;
 
   try {
     const users = await readUsers();
 
     // Ambil hanya pengguna yang statusnya 'block'
     const blockedUsers = Object.entries(users)
-      .filter(([key, value]) => value.status === "block")
-      .map(([key, value]) => ({ jid: key, ...value }));
+      .filter(([, userData]) => userData.status === "block")
+      .map(([docId, userData]) => ({
+        docId,
+        username: userData.username,
+        aliases: userData.aliases,
+      }));
 
     if (blockedUsers.length === 0) {
-      // Jika tidak ada pengguna yang diblokir
       return await sock.sendMessage(
         remoteJid,
         { text: "⚠️ Tidak ada pengguna yang diblokir saat ini." },
@@ -21,9 +24,9 @@ async function handle(sock, messageInfo) {
       );
     }
 
-    // Format daftar pengguna yang diblokir
+    // Format daftar pengguna (pakai username)
     const blockedList = blockedUsers
-      .map((user, index) => `◧ @${user.jid.split("@")[0]}`)
+      .map((user, index) => `◧ *${user.username}*`)
       .join("\n");
 
     const textNotif = `📋 *LIST BLOCK:*\n\n${blockedList}\n\n_Total:_ *${blockedUsers.length}*`;
