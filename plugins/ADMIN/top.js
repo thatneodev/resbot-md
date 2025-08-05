@@ -39,7 +39,34 @@ async function handle(sock, messageInfo) {
       )
       .join("\n");
 
-    const textNotif = `┏━『 *TOP 10 MEMBER* 』\n┣\n${memberList}\n┗━━━━━━━━━━━━━━━`;
+    const aliasList = Object.entries(dataUsers)
+      .map(([id, user]) => {
+        if (
+          !user.aliases ||
+          !Array.isArray(user.aliases) ||
+          user.aliases.length === 0
+        )
+          return null;
+
+        let alias;
+
+        if (senderType === "user") {
+          // Cari alias dengan akhiran @s.whatsapp.net
+          alias = user.aliases.find((a) => a.endsWith("@s.whatsapp.net"));
+          if (!alias) return null; // Jika tidak ditemukan, skip user
+          alias = alias.split("@")[0]; // Ambil nomor sebelum @
+        } else {
+          // Ambil alias yang TIDAK mengandung @s.whatsapp.net (misal alias manual)
+          alias = user.aliases.find((a) => a.endsWith("@lid"));
+          if (!alias) return null; // Jika tidak ditemukan, skip user
+          alias = alias.split("@")[0]; // Ambil nomor sebelum @
+        }
+
+        return `┣ ⌬ @${alias} - 💰 Money: ${user.money}`;
+      })
+      .filter(Boolean)
+      .join("\n");
+    const textNotif = `┏━『 *TOP 10 MEMBER* 』\n┣\n${aliasList}\n┗━━━━━━━━━━━━━━━`;
 
     // Kirim pesan dengan mention
     await sendMessageWithMention(

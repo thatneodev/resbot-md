@@ -93,13 +93,7 @@ async function handle(sock, messageInfo) {
 
         // Jika pengguna tidak ditemukan, tambahkan pengguna baru
         if (!dataUsers) {
-          return await sock.sendMessage(
-            remoteJid,
-            {
-              text: `⚠️ _Pengguna dengan nomor/tag tersebut tidak ditemukan._`,
-            },
-            { quoted: message }
-          );
+          continue;
         }
 
         const [docId, userData] = dataUsers;

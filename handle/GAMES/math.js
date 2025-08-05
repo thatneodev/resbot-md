@@ -31,7 +31,7 @@ async function process(sock, messageInfo) {
       const user = await findUser(sender);
 
       if (user) {
-        const [docId, userData] = dataUsers;
+        const [docId, userData] = user;
         const moneyAdd = (userData.money || 0) + hadiah; // Default money ke 0 jika undefined
         await updateUser(sender, { money: moneyAdd });
       } else {
