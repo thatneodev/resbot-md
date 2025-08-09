@@ -1,5 +1,6 @@
 const { findUser, updateUser } = require("@lib/users");
-const { determineUser } = require("@lib/utils");
+const { determineUser, extractNumber, sendMessageWithMention } = require("@lib/utils");
+
 
 async function handle(sock, messageInfo) {
   const {
@@ -11,6 +12,7 @@ async function handle(sock, messageInfo) {
     isQuoted,
     prefix,
     command,
+    senderType
   } = messageInfo;
 
   // Pisahkan nomor dan jumlah money
@@ -61,14 +63,19 @@ async function handle(sock, messageInfo) {
     money: (userData.money || 0) + moneyToAdd, // Tambah money
   });
 
-  // Kirim pesan berhasil
-  return await sock.sendMessage(
-    remoteJid,
-    {
-      text: `✅ _Money berhasil ditambah sebesar ${moneyToAdd} untuk nomor ${rawNumber}._`,
-    },
-    { quoted: message }
-  );
+    const rawTagNumber = `@${extractNumber(userToAction)}`;
+
+   // Kirim pesan dengan mention
+    await sendMessageWithMention(
+      sock,
+      remoteJid,
+      `✅ _Money berhasil ditambah sebesar ${moneyToAdd} untuk nomor ${rawTagNumber}._`,
+      message,
+      senderType
+    );
+    return
+
+
 }
 
 module.exports = {

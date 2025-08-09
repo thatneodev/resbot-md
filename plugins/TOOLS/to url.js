@@ -7,7 +7,6 @@ const axios = require('axios');
 async function upload(filePath) {
     try {
         const form = new FormData();
-        form.append('expired', '6months'); // 1minute, 1hour, 1day, 1month and 6months
         form.append('file', fs.createReadStream(filePath));
 
         const response = await axios.put(
@@ -52,7 +51,10 @@ async function handle(sock, messageInfo) {
 
         const result = await upload(mediaPath);
 
-        await reply(m, `_Link_  : ${result.fileUrl}\n\n_Expired_ : ${result.expired}`);
+        await reply(m, `_✅ Upload sukses!_
+📎 *Link*: ${result.data.url}
+            
+_File ini akan otomatis kadaluarsa 1 minggu setelah diunggah. Namun, jika file diakses lagi sebelum kadaluarsa, masa aktifnya akan otomatis diperpanjang 1 minggu ke depan._`);
 
     } catch (error) {
         console.error("Error in translation handler:", error);

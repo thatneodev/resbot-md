@@ -1,5 +1,5 @@
 const { findUser, updateUser } = require("@lib/users");
-const { determineUser } = require("@lib/utils");
+const { determineUser, extractNumber, sendMessageWithMention } = require("@lib/utils");
 
 async function handle(sock, messageInfo) {
   const {
@@ -75,6 +75,7 @@ async function handle(sock, messageInfo) {
     );
   }
 
+
   // Ambil data pengguna
   const dataUsers = await findUser(userToAction);
   if (!dataUsers) {
@@ -92,14 +93,19 @@ async function handle(sock, messageInfo) {
     level: (userData.level || 0) + levelToAdd, // Tambah level
   });
 
-  // Kirim pesan berhasil
-  return await sock.sendMessage(
-    remoteJid,
-    {
-      text: `✅ _Level berhasil ditambah ${levelToAdd} untuk nomor ${userToAction}._`,
-    },
-    { quoted: message }
-  );
+  const rawTagNumber = `@${extractNumber(userToAction)}`;
+
+    // Kirim pesan dengan mention
+    await sendMessageWithMention(
+      sock,
+      remoteJid,
+       `✅ _Level berhasil ditambah ${levelToAdd} untuk nomor ${rawTagNumber}._`,
+      message,
+      senderType
+    );
+    return
+
+
 }
 
 module.exports = {

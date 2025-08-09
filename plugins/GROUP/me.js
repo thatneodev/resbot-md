@@ -45,6 +45,8 @@ async function handle(sock, messageInfo) {
     const dataUsers = await findUser(sender);
     if (!dataUsers) return;
 
+      const [docId, userData] = dataUsers;
+
     if (!isGroup) {
       await sock.sendMessage(
         remoteJid,
@@ -69,21 +71,21 @@ async function handle(sock, messageInfo) {
       ? "Owner"
       : (await isPremiumUser(sender))
       ? "Premium"
-      : dataUsers.role;
+      : userData.role;
 
     const ppUser = await getProfilePictureUrl(sock, sender);
     const flag = getCountryFlag(sender);
-    const achievement = getAchievementBadge(dataUsers.achievement);
+    const achievement = getAchievementBadge(userData.achievement);
 
     const api = new ApiAutoresbot(config.APIKEY);
     const buffer = await api.getBuffer("/api/maker/profile3", {
-      name: dataUsers.username || pushName,
-      level_cache: dataUsers.level_cache || 0,
+      name: userData.username || pushName,
+      level_cache: userData.level_cache || 0,
       nosender: Nosender,
       role,
-      level: dataUsers.level || 0,
-      money: dataUsers.money || 0,
-      limit: dataUsers.limit || 0,
+      level: userData.level || 0,
+      money: userData.money || 0,
+      limit: userData.limit || 0,
       roleInGrub,
       flag,
       badge: achievement,

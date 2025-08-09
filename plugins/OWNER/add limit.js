@@ -1,5 +1,5 @@
 const { findUser, updateUser } = require("@lib/users");
-const { determineUser, extractNumber } = require("@lib/utils");
+const { determineUser, extractNumber, sendMessageWithMention } = require("@lib/utils");
 
 async function handle(sock, messageInfo) {
   const {
@@ -11,6 +11,7 @@ async function handle(sock, messageInfo) {
     isQuoted,
     prefix,
     command,
+    senderType
   } = messageInfo;
 
   // Validasi input kosong
@@ -86,14 +87,15 @@ async function handle(sock, messageInfo) {
     limit: (userData.limit || 0) + limitToAdd, // Tambah limit
   });
 
-  // Kirim pesan berhasil
-  return await sock.sendMessage(
-    remoteJid,
-    {
-      text: `✅ _Limit berhasil ditambah sebesar ${limitToAdd} untuk nomor ${rawNumber}._`,
-    },
-    { quoted: message }
-  );
+     // Kirim pesan dengan mention
+    await sendMessageWithMention(
+      sock,
+      remoteJid,
+       `✅ _Limit berhasil ditambah sebesar ${limitToAdd} untuk nomor ${rawNumber}._`,
+      message,
+      senderType
+    );
+    return
 }
 
 module.exports = {

@@ -5,10 +5,10 @@ async function handle(sock, messageInfo) {
 
   try {
     // Ambil data pengguna
-    let dataUsers = await findUser(sender);
+    const dataUsers = await findUser(sender);
 
     // Jika pengguna tidak ditemukan, tambahkan pengguna baru
-    if (!userData) {
+    if (!dataUsers) {
       return await sock.sendMessage(
         remoteJid,
         { text: `⚠️ _Pengguna dengan nomor/tag tersebut tidak ditemukan._` },
