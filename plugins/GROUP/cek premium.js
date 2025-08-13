@@ -11,7 +11,7 @@ async function handle(sock, messageInfo) {
     if (!dataUsers) {
       return await sock.sendMessage(
         remoteJid,
-        { text: `⚠️ _Pengguna dengan nomor/tag tersebut tidak ditemukan._` },
+        { text: `❗ Kamu belum terdaftar. Ketik *.register* dulu ya!` },
         { quoted: message }
       );
     }

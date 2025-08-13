@@ -10,9 +10,7 @@ async function handle(sock, messageInfo) {
       {
         text: `⚠️ _Masukkan format yang valid_\n\n_Contoh: *${
           prefix + command
-        } 6285246154386 50*_\n\n_Atau tag orangnya_ \n*${
-          prefix + command
-        } @tag 50*`,
+        } @tag 50*_`,
       },
       { quoted: message }
     );
@@ -27,7 +25,7 @@ async function handle(sock, messageInfo) {
         {
           text: `⚠️ _Format tidak valid. Contoh:_ *${
             prefix + command
-          } 6285246154386 50*`,
+          } @tag 50*`,
         },
         { quoted: message }
       );
@@ -43,7 +41,7 @@ async function handle(sock, messageInfo) {
         {
           text: `⚠️ _Jumlah limit harus berupa angka positif_\n\n_Contoh: *${
             prefix + command
-          } 628xxxxx 50*_`,
+          } @tag 50*_`,
         },
         { quoted: message }
       );
@@ -79,10 +77,18 @@ async function handle(sock, messageInfo) {
     // Ambil data pengguna pengirim
     const senderData = await findUser(sender);
 
+    if (!senderData) {
+      return await sock.sendMessage(
+        remoteJid,
+        { text: `⚠️ _Anda Belum terdaftar_` },
+        { quoted: message }
+      );
+    }
+
     const [docId1, userData1] = senderData;
 
     // Validasi apakah pengirim memiliki cukup limit
-    if (senderData.limit < limitToSend) {
+    if (userData1.limit < limitToSend) {
       return await sock.sendMessage(
         remoteJid,
         {
@@ -94,7 +100,6 @@ async function handle(sock, messageInfo) {
 
     // Ambil data penerima
     const receiverData = await findUser(targetNumber);
-    const [docId2, userData2] = receiverData;
 
     if (!receiverData) {
       return await sock.sendMessage(
@@ -104,9 +109,11 @@ async function handle(sock, messageInfo) {
       );
     }
 
+    const [docId2, userData2] = receiverData;
+
     // Update limit pengguna pengirim dan penerima
-    await updateUser(sender, { limit: userData2.limit - limitToSend });
-    await updateUser(targetNumber, { limit: userData1.limit + limitToSend });
+    await updateUser(sender, { limit: userData1.limit - limitToSend });
+    await updateUser(targetNumber, { limit: userData2.limit + limitToSend });
 
     // Kirim pesan berhasil
     return await sock.sendMessage(

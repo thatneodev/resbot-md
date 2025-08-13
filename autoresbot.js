@@ -5,7 +5,7 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 ╔══════════════════════════════════════════════╗
 ║                🛠️ INFORMASI SCRIPT           ║
 ╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.2.9
+║ 📦 Version   : 4.3.0
 ║ 👨‍💻 Developer  : Azhari Creative              ║
 ║ 🌐 Website    : https://autoresbot.com       ║
 ║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
@@ -15,6 +15,8 @@ Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
 Script **Autoresbot** resmi menjadi **Open Source** dan dapat digunakan secara gratis:
 🔗 https://autoresbot.com
 */
+
+const commandWithoutRegister = ["list", "owner", "menu", "claim"];
 
 const chokidar = require("chokidar");
 const config = require("@config");
@@ -43,7 +45,6 @@ const {
 } = require("@lib/users");
 const pluginsPath = path.join(process.cwd(), "plugins");
 const lastSent_participantUpdate = {};
-const warnedUnregistered = new Set();
 
 const { reloadPlugins } = require("@lib/plugins");
 const { logCustom } = require("@lib/logger");
@@ -157,21 +158,23 @@ async function processMessage(sock, messageInfo) {
       if (plugin.Commands.includes(command)) {
         commandFound = true;
 
-        // Lalu di handler:
+        // Handler:
         if (!isUserRegistered(sender) && command.toLowerCase() !== "register") {
-          if (!warnedUnregistered.has(sender)) {
-            await sock.sendMessage(
-              remoteJid,
-              {
-                text:
-                  mess.general?.isNotRegister ||
-                  "❗ Kamu belum terdaftar. Ketik *.register* dulu ya!",
-              },
-              { quoted: message }
-            );
-            warnedUnregistered.add(sender); // tandai sudah pernah diingatkan
+          // Kalau command ada di commandWithoutRegister, skip peringatan
+          if (!commandWithoutRegister.includes(command.toLowerCase())) {
+
+              await sock.sendMessage(
+                remoteJid,
+                {
+                  text:
+                    mess.general?.isNotRegister ||
+                    "❗ Kamu belum terdaftar. Ketik *.register* dulu ya!",
+                },
+                { quoted: message }
+              );
+           
+            return;
           }
-          return;
         }
 
         // Cek apakah perintah ini hanya untuk pengguna premium

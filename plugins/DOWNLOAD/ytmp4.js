@@ -60,7 +60,6 @@ async function handle(sock, messageInfo) {
     }
   } catch (error) {
     // Tangani kesalahan dan log error
-    console.error("Kesalahan saat memanggil API Autoresbot:", error);
     logCustom("info", content, `ERROR-COMMAND-${command}.txt`);
 
     // Kirim pesan kesalahan yang lebih informatif

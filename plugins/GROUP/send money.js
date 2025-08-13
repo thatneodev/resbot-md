@@ -10,9 +10,7 @@ async function handle(sock, messageInfo) {
       {
         text: `⚠️ _Masukkan format yang valid_\n\n_Contoh: *${
           prefix + command
-        } 6285246154386 50*_\n\n_Atau tag orangnya_ \n*${
-          prefix + command
-        } @tag 50*`,
+        } @tag 50*_`,
       },
       { quoted: message }
     );
@@ -27,7 +25,7 @@ async function handle(sock, messageInfo) {
         {
           text: `⚠️ _Format tidak valid. Contoh:_ *${
             prefix + command
-          } 6285246154386 50*`,
+          } @tag 50*`,
         },
         { quoted: message }
       );
@@ -43,7 +41,7 @@ async function handle(sock, messageInfo) {
         {
           text: `⚠️ _Jumlah money harus berupa angka positif_\n\n_Contoh: *${
             prefix + command
-          } 628xxxxx 50*_`,
+          } @tag 50*_`,
         },
         { quoted: message }
       );
@@ -78,10 +76,18 @@ async function handle(sock, messageInfo) {
 
     // Ambil data pengguna pengirim
     const senderData = await findUser(sender);
+    if (!senderData) {
+      return await sock.sendMessage(
+        remoteJid,
+        { text: `⚠️ _Pengguna dengan nomor/tag tersebut tidak ditemukan._` },
+        { quoted: message }
+      );
+    }
+
     const [docId1, userData1] = senderData;
 
     // Validasi apakah pengirim memiliki cukup money
-    if (senderData.money < moneyToSend) {
+    if (userData1.money < moneyToSend) {
       return await sock.sendMessage(
         remoteJid,
         {

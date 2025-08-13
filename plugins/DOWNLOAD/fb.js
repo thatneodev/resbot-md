@@ -52,7 +52,6 @@ async function handle(sock, messageInfo) {
     const response = await api.get("/api/downloader/facebook", {
       url: content,
     });
-
     // Download file ke buffer
     const audioBuffer = await downloadToBuffer(response.data[0], "mp4");
 
@@ -61,7 +60,7 @@ async function handle(sock, messageInfo) {
       await sock.sendMessage(
         remoteJid,
         {
-          video: { url: audioBuffer },
+          video: audioBuffer,
           mimetype: "video/mp4",
           caption: mess.general.success,
         },
@@ -77,8 +76,6 @@ async function handle(sock, messageInfo) {
       await sendMessageWithQuote(sock, remoteJid, message, errorMessage);
     }
   } catch (error) {
-    console.error("Kesalahan saat memanggil API Autoresbot:", error);
-
     logCustom("info", content, `ERROR-COMMAND-${command}.txt`);
 
     // Menangani kesalahan dan mengirim pesan ke pengguna

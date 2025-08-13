@@ -90,6 +90,10 @@ async function handle(sock, messageInfo) {
             console.log("📂 Mengekstrak ZIP menggunakan sistem unzip...");
             execSync(`unzip -o updates.zip -d updates/`, { stdio: "inherit" });
         } catch (error) {
+             await sock.sendMessage(remoteJid, {
+                text: `⚠️ Update hanya support di os Linux `,
+                quoted: message,
+            });
             console.error("❌ Gagal mengekstrak file ZIP:", error);
             return;
         } finally {

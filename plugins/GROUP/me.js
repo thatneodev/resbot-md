@@ -78,7 +78,7 @@ async function handle(sock, messageInfo) {
     const achievement = getAchievementBadge(userData.achievement);
 
     const api = new ApiAutoresbot(config.APIKEY);
-    const buffer = await api.getBuffer("/api/maker/profile3", {
+    const buffer = await api.getBuffer("/api/maker/profile4", {
       name: userData.username || pushName,
       level_cache: userData.level_cache || 0,
       nosender: Nosender,

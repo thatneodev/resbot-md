@@ -6,7 +6,7 @@ async function handle(sock, messageInfo) {
   if (content.length < 2) {
     return await sock.sendMessage(
       remoteJid,
-      { text: "❗ Contoh: .register jokowi" },
+      { text: "❗ Contoh: .register nama kamu" },
       { quoted: message }
     );
   }
@@ -18,6 +18,17 @@ async function handle(sock, messageInfo) {
       { quoted: message }
     );
   }
+
+    if (content.includes('nama') && content.includes('kamu')) {
+    return await sock.sendMessage(
+      remoteJid,
+      { text: "❗ Nama Tidak valid, Pastikan Gunakan Nama Asli" },
+      { quoted: message }
+    );
+  }
+
+
+  
 
   const username = content.toLowerCase();
   const res = registerUser(sender, username);
