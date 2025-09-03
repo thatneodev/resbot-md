@@ -1,1 +1,6 @@
-Kesalahan di processMessage: TypeError: Cannot read properties of undefined (reading 'trim')
+Error pada perintah .pd: ReferenceError: messageInfo is not defined
+    at handleDefault (C:\Users\acer\Music\resbot-md\plugins\GAMES\pd.js:29:34)
+    at Object.handle (C:\Users\acer\Music\resbot-md\plugins\GAMES\pd.js:245:19)
+    at processMessage (C:\Users\acer\Music\resbot-md\autoresbot.js:233:43)
+    at async EventEmitter.<anonymous> (C:\Users\acer\Music\resbot-md\lib\connection.js:217:9)
+
