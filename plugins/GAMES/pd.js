@@ -2,7 +2,7 @@
 const mess = require('../../handle/mess');
 const response = require('../../handle/respon');
 const { findUser, updateUser, isOwner, isPremiumUser } = require('../../lib/users');
-const { searchCharacter } = require('../../lib/jikan');
+const { searchCharacter } = require('../../lib/jikan'); // Pastikan path ini benar dan mengarah ke file pencarian karakter
 const { getClaimantInfo, claimCharacter, releaseCharacter } = require('../../lib/claimedCharacters');
 const axios = require('axios');
 
@@ -36,8 +36,8 @@ async function handleHelp(sock, remoteJid, message) {
 - \`.pd help\`: Tampilkan pesan bantuan ini.
 - \`.pd putus\`: Putus dengan pasangan saat ini.
 - \`.pd nikah @user\`: Lamar seorang user untuk menikah.
-- \`.pd cari <nama>\`: Cari karakter anime untuk dijadikan pasangan.
-- \`.pd claim <nama>\`: Klaim karakter anime sebagai pasangan.
+- \`.pd cari <nama>\`: Cari karakter fiksi untuk dijadikan pasangan.
+- \`.pd claim <nama>\`: Klaim karakter fiksi sebagai pasangan.
 
 *INTERAKSI DENGAN PASANGAN (SEMUA JENIS):*
 - \`.pd seks\`: Berhubungan intim (dengan GIF acak).
@@ -210,37 +210,57 @@ async function handleKerja(sock, remoteJid, message, userData, sender) {
 }
 
 async function handleCari(sock, remoteJid, message, query) {
-    if (!query) return response.sendTextMessage(sock, remoteJid, "Masukkan nama karakter. Contoh: `.pd cari Naruto`", message);
+    if (!query) return response.sendTextMessage(sock, remoteJid, "Masukkan nama karakter. Contoh: `.pd cari Uzi Doorman`", message);
+    
+    await response.sendTextMessage(sock, remoteJid, `⏳ Mencari *${query}*...`, message);
     const char = await searchCharacter(query);
-    if (!char) return response.sendTextMessage(sock, remoteJid, `Karakter "${query}" tidak ditemukan.`, message);
-    const claimantJid = getClaimantInfo(char.mal_id);
+    
+    if (!char) return response.sendTextMessage(sock, remoteJid, `❌ Karakter "${query}" tidak ditemukan. Coba nama lain.`, message);
+    
+    const claimantJid = getClaimantInfo(char.id); // Menggunakan char.id yang sudah distandarisasi
     let statusText = `✅ *Status:* Tersedia`, claimSuggestion = `\n\nKetik \`.pd claim ${char.name}\` untuk jadi pasanganmu!`;
+    
     if (claimantJid) {
         const claimantUserArr = findUser(claimantJid);
         const claimantUsername = claimantUserArr ? claimantUserArr[1].username : "Seseorang";
         statusText = `❌ *Status:* Sudah diklaim oleh *${claimantUsername}*`; claimSuggestion = "";
     }
-    const caption = `*Nama:* ${char.name}\n*Deskripsi:* ${char.about}\n${statusText}${claimSuggestion}`;
+    
+    const caption = `*Nama:* ${char.name}\n*Sumber:* ${char.source}\n*Deskripsi:* ${char.about}\n${statusText}${claimSuggestion}`;
     const imageBuffer = await urlToBuffer(char.image_url);
+    
     if (imageBuffer) await response.sendMediaMessage(sock, remoteJid, imageBuffer, caption, message, 'image');
     else await response.sendTextMessage(sock, remoteJid, caption, message);
 }
 
 async function handleClaim(sock, remoteJid, message, query, userData, sender) {
-    if (userData.rl?.pd) return response.sendTextMessage(sock, remoteJid, "Anda sudah punya pasangan. Putuskan dulu.", message);
-    if (!query) return response.sendTextMessage(sock, remoteJid, "Masukkan nama karakter.", message);
+    if (userData.rl?.pd) return response.sendTextMessage(sock, remoteJid, "Anda sudah punya pasangan. Putuskan dulu dengan `.pd putus`.", message);
+    if (!query) return response.sendTextMessage(sock, remoteJid, "Masukkan nama karakter yang ingin diklaim.", message);
+    
     const charToClaim = await searchCharacter(query);
     if (!charToClaim) return response.sendTextMessage(sock, remoteJid, `Karakter "${query}" tidak ditemukan.`, message);
-    const claimantJid = getClaimantInfo(charToClaim.mal_id);
+    
+    const claimantJid = getClaimantInfo(charToClaim.id);
     if (claimantJid) {
         const claimantUserArr = findUser(claimantJid);
         const claimantUsername = claimantUserArr ? claimantUserArr[1].username : "Seseorang";
-        return response.sendTextMessage(sock, remoteJid, `Maaf, ${charToClaim.name} sudah diklaim oleh *${claimantUsername}*.`, message);
+        return response.sendTextMessage(sock, remoteJid, `Maaf, *${charToClaim.name}* sudah diklaim oleh *${claimantUsername}*.`, message);
     }
-    claimCharacter(charToClaim.mal_id, sender);
+    
+    claimCharacter(charToClaim.id, sender);
     const newPartner = {
-        nama: charToClaim.name, status: 'Pacaran', umurpd: new Date().toISOString(), hubungan: 50, level: 1, xp: 0, food: 100, uang: 1000,
-        img: charToClaim.image_url, mal_id: charToClaim.mal_id, mal_url: charToClaim.url, horny: 0
+        nama: charToClaim.name,
+        status: 'Pacaran',
+        umurpd: new Date().toISOString(),
+        hubungan: 50,
+        level: 1,
+        xp: 0,
+        food: 100,
+        uang: 1000,
+        img: charToClaim.image_url,
+        char_id: charToClaim.id, // ID karakter dari sumbernya
+        horny: 0,
+        url: charToClaim.url
     };
     updateUser(sender, { rl: { pd: newPartner } });
     await response.sendTextMessage(sock, remoteJid, `Selamat! Anda sekarang berpacaran dengan *${charToClaim.name}*.`, message);
@@ -249,8 +269,10 @@ async function handleClaim(sock, remoteJid, message, query, userData, sender) {
 async function handlePutus(sock, remoteJid, message, userData, sender) {
     const partner = userData.rl?.pd;
     if (!partner) return response.sendTextMessage(sock, remoteJid, "Anda tidak punya pasangan.", message);
-    if (partner.mal_id) releaseCharacter(partner.mal_id);
-    else if (partner.jid) {
+    
+    if (partner.char_id) { // Jika pasangan adalah karakter fiksi
+        releaseCharacter(partner.char_id);
+    } else if (partner.jid) { // Jika pasangan adalah user lain
         const [partnerId, partnerData] = findUser(partner.jid) || [null, null];
         if (partnerData && partnerData.rl?.pd) {
             delete partnerData.rl.pd;
@@ -258,20 +280,25 @@ async function handlePutus(sock, remoteJid, message, userData, sender) {
             sock.sendMessage(partner.jid, { text: `💔 Hubunganmu dengan ${userData.username} telah berakhir.` });
         }
     }
+    
     delete userData.rl.pd;
     updateUser(sender, userData);
     await response.sendTextMessage(sock, remoteJid, `Anda telah putus dengan *${partner.nama}*.`, message);
 }
+
 
 // ===================================================
 // FUNGSI UTAMA (MAIN HANDLE)
 // ===================================================
 async function handle(sock, messageInfo) {
     const { remoteJid, sender, message, command, isGroup, fullText } = messageInfo;
-    const args = fullText.split(' ').slice(1);
-    const subCommand = args[0] ? args[0].toLowerCase() : null;
-    const query = args.slice(1).join(' ');
     
+    // [PERBAIKAN] Parsing argumen dan query yang lebih andal untuk nama dengan spasi
+    const args = fullText.trim().split(/ +/);
+    const subCommand = args.length > 0 ? args.shift().toLowerCase() : null; // Ambil kata pertama sebagai sub-perintah
+    const query = args.join(' '); // Gabungkan semua sisa kata menjadi query
+
+    // Logika untuk menangani lamaran yang sedang aktif
     if (isProposalActive(remoteJid)) {
         const currentProposal = getProposal(remoteJid);
         const { proposer, proposed } = currentProposal;
@@ -281,7 +308,6 @@ async function handle(sock, messageInfo) {
                 const [proposedId, proposedData] = findUser(proposed) || [null, null];
                 if (!proposerData || !proposedData) { removeProposal(remoteJid); return sock.sendMessage(remoteJid, { text: "Terjadi kesalahan." }, { quoted: message }); }
                 
-                // [DIUBAH] Berikan statistik lengkap saat menikah dengan user
                 const defaultStats = {
                     status: 'Menikah', umurpd: new Date().toISOString(), hubungan: 50, level: 1, xp: 0, food: 100, uang: 1000, horny: 0
                 };
@@ -306,17 +332,22 @@ async function handle(sock, messageInfo) {
     const [userId, userData] = findUser(sender) || [null, null];
     if (!userData) return response.sendTextMessage(sock, remoteJid, "Anda belum terdaftar.", message);
 
+    // Logika untuk memulai lamaran baru
     if (subCommand === 'nikah' || subCommand === 'lamar') {
         if (!isGroup) return sock.sendMessage(remoteJid, { text: 'Fitur ini hanya di grup.' }, { quoted: message });
         if (userData.rl?.pd) return response.sendTextMessage(sock, remoteJid, "Anda sudah punya pasangan.", message);
         if (isUserInProposal(sender)) return response.sendTextMessage(sock, remoteJid, "Anda sedang terlibat dalam lamaran lain.", message);
+        
         const mentionedJid = message.extendedTextMessage?.contextInfo?.mentionedJid;
-        if (!mentionedJid || mentionedJid.length === 0) return response.sendTextMessage(sock, remoteJid, 'Tag orangnya!', message);
+        if (!mentionedJid || mentionedJid.length === 0) return response.sendTextMessage(sock, remoteJid, 'Tag orang yang ingin kamu lamar!', message);
+        
         const proposedJid = mentionedJid[0];
         if (proposedJid === sender) return response.sendTextMessage(sock, remoteJid, 'Tidak bisa menikah dengan diri sendiri!', message);
+        
         const [proposedId, proposedData] = findUser(proposedJid) || [null, null];
         if (!proposedData) return response.sendTextMessage(sock, remoteJid, 'Orang yang ditag belum terdaftar.', message);
         if (proposedData.rl?.pd) return response.sendTextMessage(sock, remoteJid, `Maaf, ${proposedData.username} sudah punya pasangan.`, message);
+        
         addProposal(remoteJid, { proposer: sender, proposed: proposedJid, state: 'WAITING' });
         setTimeout(async () => {
             if (isProposalActive(remoteJid)) {
@@ -327,10 +358,12 @@ async function handle(sock, messageInfo) {
                 }
             }
         }, WAKTU_LAMARAN * 1000);
+        
         const waitingMessage = `@${sender.split('@')[0]} melamar @${proposedJid.split('@')[0]} untuk menikah!\n\n@${proposedJid.split('@')[0]}, jawab dengan \`.pd terima\` atau \`.pd tolak\`.`;
         return sock.sendMessage(remoteJid, { text: waitingMessage, mentions: [sender, proposedJid] }, { quoted: message });
     }
     
+    // Router untuk semua sub-perintah lainnya
     try {
         const commandMap = {
             'help': () => handleHelp(sock, remoteJid, message),
