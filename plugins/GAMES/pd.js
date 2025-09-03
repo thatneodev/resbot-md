@@ -30,7 +30,7 @@ const msToDays = (ms) => Math.floor(ms / (1000 * 60 * 60 * 24));
 /**
  * Menampilkan profil user dan pasangannya (jika ada). Ini adalah perintah default.
  */
-async function handleDefault(sock, remoteJid, message, userData, messageInfo) { // <-- Diperbaiki dengan messageInfo
+async function handleDefault(sock, remoteJid, message, userData, messageInfo) {
     const { sender, pushName } = messageInfo;
     
     // --- Bagian Profil User (dari me2.js) ---
@@ -156,7 +156,7 @@ async function handlePutus(sock, remoteJid, message, userData, sender) {
     } 
     // Jika pasangan adalah user, putuskan hubungan di kedua sisi
     else if (partner.jid) {
-        const [partnerId, partnerData] = findUser(partner.jid);
+        const [partnerId, partnerData] = findUser(partner.jid) || [null, null];
         if (partnerData && partnerData.rl?.pd) {
             delete partnerData.rl.pd;
             updateUser(partner.jid, partnerData);
@@ -171,8 +171,9 @@ async function handlePutus(sock, remoteJid, message, userData, sender) {
     await response.sendTextMessage(sock, remoteJid, `Anda telah putus dengan *${partner.nama}*.`, message);
 }
 
-// ... Tambahkan fungsi handleSeks, handleHamil, handleSogok, handleMakan, handleKerja di sini jika Anda memilikinya ...
-// Contoh:
+/**
+ * Berhubungan intim dengan pasangan NPC.
+ */
 async function handleSeks(sock, remoteJid, message, userData, sender) {
     const pd = userData.rl?.pd;
     if (!pd || !pd.mal_id) return response.sendTextMessage(sock, remoteJid, "Fitur ini hanya untuk pasangan NPC.", message);
@@ -200,28 +201,31 @@ async function handleSeks(sock, remoteJid, message, userData, sender) {
 }
 
 // ===================================================
-// FUNGSI UTAMA (MAIN HANDLE) - Mengikuti Pola TicTacToe
+// FUNGSI UTAMA (MAIN HANDLE)
 // ===================================================
 async function handle(sock, messageInfo) {
-    const { remoteJid, sender, message, command, isGroup } = messageInfo;
+    const { remoteJid, sender, message, command, isGroup, fullText } = messageInfo;
 
-    const body = message.conversation || message.imageMessage?.caption || message.videoMessage?.caption || message.extendedTextMessage?.text || '';
-    const argsText = body.slice(1 + command.length).trim();
-    const args = argsText.split(/ +/).filter(arg => arg !== '');
-    const subCommand = args.shift()?.toLowerCase();
-    const query = args.join(' ');
+    // --- Parsing Argumen yang Diperbaiki ---
+    const args = fullText.split(' ').slice(1);
+    const subCommand = args[0] ? args[0].toLowerCase() : null;
+    const query = args.slice(1).join(' ');
     
-    // 1. Cek apakah ada lamaran yang sedang berlangsung di grup ini
+    // 1. Cek lamaran yang sedang berlangsung di grup ini
     if (isProposalActive(remoteJid)) {
         const currentProposal = getProposal(remoteJid);
         const { proposer, proposed } = currentProposal;
 
         if (sender === proposed) { // Jika yang dilamar merespon
             if (subCommand === 'terima') {
-                const [proposerId, proposerData] = findUser(proposer);
-                const [proposedId, proposedData] = findUser(proposed);
+                const [proposerId, proposerData] = findUser(proposer) || [null, null];
+                const [proposedId, proposedData] = findUser(proposed) || [null, null];
 
-                // Buat data pasangan untuk masing-masing
+                if (!proposerData || !proposedData) {
+                    removeProposal(remoteJid);
+                    return sock.sendMessage(remoteJid, { text: "Terjadi kesalahan, salah satu pengguna tidak ditemukan." }, { quoted: message });
+                }
+
                 const newPartnerDataForProposer = {
                     nama: proposedData.username, jid: proposed, status: 'Menikah',
                     umurpd: new Date().toISOString(), hubungan: 50,
@@ -247,14 +251,14 @@ async function handle(sock, messageInfo) {
         } else { // Jika orang lain mencoba memulai perintah baru
              await sock.sendMessage(remoteJid, { text: mess.game.isPlaying }, { quoted: message });
         }
-        return;
+        return; // Hentikan eksekusi jika ada lamaran aktif
     }
     
     // 2. Jika tidak ada lamaran aktif, proses perintah baru
     const [userId, userData] = findUser(sender) || [null, null];
     if (!userData) return response.sendTextMessage(sock, remoteJid, "Anda belum terdaftar.", message);
 
-    // Sub-command untuk memulai lamaran (seperti memulai TicTacToe)
+    // Sub-command untuk memulai lamaran
     if (subCommand === 'nikah' || subCommand === 'lamar') {
         if (!isGroup) return sock.sendMessage(remoteJid, { text: 'Fitur ini hanya bisa digunakan di dalam grup.' }, { quoted: message });
         if (userData.rl?.pd) return response.sendTextMessage(sock, remoteJid, "Anda sudah punya pasangan. Putuskan dulu dengan `.pd putus`.", message);
@@ -288,25 +292,33 @@ async function handle(sock, messageInfo) {
         return sock.sendMessage(remoteJid, { text: waitingMessage, mentions: [sender, proposedJid] }, { quoted: message });
     }
     
-    // 3. Menjalankan perintah solo (NPC) lainnya
+    // 3. Menjalankan perintah solo (NPC) lainnya atau default
     try {
         const commandMap = {
             'cari': () => handleCari(sock, remoteJid, message, query),
             'claim': () => handleClaim(sock, remoteJid, message, query, userData, sender),
             'putus': () => handlePutus(sock, remoteJid, message, userData, sender),
             'seks': () => handleSeks(sock, remoteJid, message, userData, sender),
-            // 'hamil': () => handleHamil(sock, remoteJid, message, userData, sender), // Tambahkan jika ada
-            // 'makan': () => handleMakan(sock, remoteJid, message, userData, sender), // Tambahkan jika ada
-            // 'kerja': () => handleKerja(sock, remoteJid, message, userData, sender), // Tambahkan jika ada
+            // Tambahkan fungsi lain di sini jika ada, contoh:
+            // 'makan': () => handleMakan(sock, remoteJid, message, userData, sender),
+            // 'kerja': () => handleKerja(sock, remoteJid, message, userData, sender),
         };
 
-        const handler = commandMap[subCommand];
-        if (subCommand && handler) {
-            await handler();
-        } else if (!subCommand) {
-            await handleDefault(sock, remoteJid, message, userData, messageInfo); // Kirim messageInfo
-        } else {
-            await response.sendTextMessage(sock, remoteJid, `Perintah \`.pd ${subCommand}\` tidak ditemukan. Ketik \`.pd\` untuk bantuan.`, message);
+        // Jika subCommand ada dan terdaftar di commandMap, jalankan.
+        if (subCommand && commandMap[subCommand]) {
+            await commandMap[subCommand]();
+        } 
+        // Jika subCommand tidak ada (hanya .pd), jalankan default.
+        else if (!subCommand) {
+            await handleDefault(sock, remoteJid, message, userData, messageInfo);
+        } 
+        // Jika subCommand ada tapi tidak dikenali.
+        else {
+            // Abaikan untuk sub-command nikah karena sudah ditangani di atas
+            const pvpCommands = ['nikah', 'lamar', 'terima', 'tolak', 'batal'];
+            if (!pvpCommands.includes(subCommand)) {
+                await response.sendTextMessage(sock, remoteJid, `Perintah \`.pd ${subCommand}\` tidak ditemukan. Ketik \`.pd\` untuk bantuan.`, message);
+            }
         }
     } catch (error) {
         console.error(`Error pada perintah .pd: ${error}`);
