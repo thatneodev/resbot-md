@@ -6,7 +6,10 @@ const msToDays = (ms) => Math.floor(ms / (1000 * 60 * 60 * 24));
 
 async function handle(sock, messageInfo) {
     const { remoteJid, sender, message, text } = messageInfo;
-    const args = text.split(' ').slice(1);
+    
+    // Perbaikan ada di baris ini
+    const args = (text || '').split(' ').slice(1);
+    
     const subCommand = args[0]?.toLowerCase();
     const query = args.slice(1).join(' ');
 
@@ -80,16 +83,14 @@ async function handle(sock, messageInfo) {
                 await sock.sendMessage(remoteJid, { text: `Anda telah putus dengan *${partnerToRelease.nama}*.` }, { quoted: message });
                 break;
 
-            // ====== FITUR BARU ======
             case 'seks':
                 if (!userData.rl?.pd) return sock.sendMessage(remoteJid, { text: "Kamu belum punya pasangan." }, { quoted: message });
                 {
                     const pd = userData.rl.pd;
-                    const scene = `${pd.nama} meraih tanganmu dengan wajah memerah. Tubuhnya bergetar, nafasnya berat ketika kau menariknya lebih dekat. Malam itu kalian tenggelam dalam gairah panas, desahan dan rintihan memenuhi udara... 💦`;
+                    let scene = `${pd.nama} meraih tanganmu dengan wajah memerah. Tubuhnya bergetar, nafasnya berat ketika kau menariknya lebih dekat. Malam itu kalian tenggelam dalam gairah panas, desahan dan rintihan memenuhi udara... 💦`;
                     
                     pd.horny = (pd.horny || 0) + 50;
 
-                    // ada chance hamil
                     if (Math.random() < 0.3 && !pd.kehamilan) {
                         pd.kehamilan = true;
                         pd.trimester = 1;
