@@ -1,6 +1,5 @@
 const menu = require('@DB/menu'); // pindah ke folder database menu.js
 
-const linkGroup = 'https://whatsapp.com/channel/0029VabMgUy9MF99bWrYja2Q';
 const AUDIO_MENU = true;
 
 const fs          = require("fs");
@@ -90,23 +89,11 @@ ${readMore()}
 ${Object.keys(menu).map(key => formatMenu(key.toUpperCase(), menu[key])).join('\n\n')}
             `;
 
-            const buffer = readFileAsBuffer('@assets/allmenu.jpg');
+            //const buffer = readFileAsBuffer('@assets/allmenu.jpg');
           
             result = await sock.sendMessage(remoteJid, {
                 text : style(response),
-                contextInfo: {
-                externalAdReply: {
-                    showAdAttribution: false, 
-                    title: `Halo ${pushName}`,
-                    body: `Resbot ${config.version}`,
-                    thumbnail: buffer,
-                    jpegThumbnail: buffer, // tambahkan ini
-                    thumbnailUrl: linkGroup,
-                    sourceUrl: linkGroup,
-                    mediaType: 1,
-                    renderLargerThumbnail: true
-                }
-                }
+                contextInfo: {}
             },{ quoted: message });
 
         }
