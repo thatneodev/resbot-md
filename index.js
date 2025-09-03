@@ -1,30 +1,12 @@
-/*
-⚠️ PERINGATAN:
-Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
-
-╔══════════════════════════════════════════════╗
-║                🛠️ INFORMASI SCRIPT           ║
-╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.3.0
-║ 👨‍💻 Developer  : Azhari Creative              ║
-║ 🌐 Website    : https://autoresbot.com       ║
-║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
-╚══════════════════════════════════════════════╝
-
-📌 Mulai 11 April 2025,
-Script **Autoresbot** resmi menjadi **Open Source** dan dapat digunakan secara gratis:
-🔗 https://autoresbot.com
-*/
-
 console.log(`[✔] Start App ...`);
 
-// Mewajibkan untuk menggunakan versi node js 20
+// Memerlukan Node.js versi 20 atau lebih tinggi
 const [major] = process.versions.node.split(".").map(Number);
 
-if (major < 20 || major >= 21) {
-  console.error(`❌ Script ini hanya kompatibel dengan Node.js versi 20.x`);
+if (major < 20) {
+  console.error(`❌ Script ini memerlukan Node.js versi 20.x atau lebih tinggi.`);
   console.error(
-    `ℹ️  Jika kamu menjalankan script ini melalui panel, buka menu *Startup*, lalu ubah *Docker Image* ke versi Node.js 20`
+    `ℹ️  Versi Node.js Anda saat ini adalah ${process.version}. Silakan perbarui.`
   );
 
   // Tunggu 60 detik sebelum keluar
@@ -50,14 +32,14 @@ const axios = require("axios");
       "follow-redirects",
       "qrcode-reader",
       "jimp",
-      "baileys@6.7.18",
-      "api-autoresbot@1.0.6",
+      "baileys",
+      "api-autoresbot",
     ]);
 
     const { start_app } = require("@lib/startup");
     await start_app();
   } catch (err) {
-    onsole.error("Error dalam proses start_app:", err.message);
+    console.error("Error dalam proses start_app:", err.message); // <-- Perbaikan typo di sini
     await reportCrash("inactive");
     process.exit(1);
   }
