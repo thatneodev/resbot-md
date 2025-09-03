@@ -52,7 +52,7 @@ async function handle(sock, messageInfo) {
                 claimCharacter(charToClaim.mal_id, userId);
                 const newPartnerData = {
                     nama: charToClaim.name,
-                    //gender: 'Tergantung Karakter', // Anda bisa perbaiki ini jika API menyediakan gender
+                    gender: 'Tergantung Karakter',
                     status: 'Pacaran',
                     umurpd: new Date().toISOString(),
                     hubungan: 50,
@@ -60,7 +60,10 @@ async function handle(sock, messageInfo) {
                     img: charToClaim.image_url,
                     mal_id: charToClaim.mal_id,
                     mal_url: charToClaim.url,
-                    anak: []
+                    anak: [],
+                    kehamilan: false,
+                    trimester: 0,
+                    horny: 0
                 };
 
                 updateUser(sender, { rl: { pd: newPartnerData } });
@@ -77,7 +80,65 @@ async function handle(sock, messageInfo) {
                 await sock.sendMessage(remoteJid, { text: `Anda telah putus dengan *${partnerToRelease.nama}*.` }, { quoted: message });
                 break;
 
-            default: // Menampilkan profil pasangan jika .pd saja
+            // ====== FITUR BARU ======
+            case 'seks':
+                if (!userData.rl?.pd) return sock.sendMessage(remoteJid, { text: "Kamu belum punya pasangan." }, { quoted: message });
+                {
+                    const pd = userData.rl.pd;
+                    const scene = `${pd.nama} meraih tanganmu dengan wajah memerah. Tubuhnya bergetar, nafasnya berat ketika kau menariknya lebih dekat. Malam itu kalian tenggelam dalam gairah panas, desahan dan rintihan memenuhi udara... 💦`;
+                    
+                    pd.horny = (pd.horny || 0) + 50;
+
+                    // ada chance hamil
+                    if (Math.random() < 0.3 && !pd.kehamilan) {
+                        pd.kehamilan = true;
+                        pd.trimester = 1;
+                        scene += `\n\nBeberapa minggu kemudian, ${pd.nama} merasa mual... tanda kehidupan baru tumbuh di rahimnya 🤰.`;
+                    }
+
+                    updateUser(sender, { rl: { pd } });
+                    await sock.sendMessage(remoteJid, { text: scene }, { quoted: message });
+                }
+                break;
+
+            case 'hamil':
+                if (!userData.rl?.pd) return sock.sendMessage(remoteJid, { text: "Kamu belum punya pasangan." }, { quoted: message });
+                {
+                    const pd = userData.rl.pd;
+                    if (!pd.kehamilan) return sock.sendMessage(remoteJid, { text: `${pd.nama} belum hamil.` }, { quoted: message });
+
+                    pd.trimester++;
+                    let info = `${pd.nama} kini memasuki trimester ${pd.trimester}. Perutnya mulai membuncit lembut, setiap hari terasa semakin dekat dengan kelahiran. 👶`;
+
+                    if (pd.trimester >= 3) {
+                        const anakBaru = { nama: `Anak-${pd.anak.length + 1}`, umur: 0 };
+                        pd.anak.push(anakBaru);
+                        pd.kehamilan = false;
+                        pd.trimester = 0;
+                        info = `${pd.nama} melahirkan seorang bayi mungil! 👶✨ Anakmu kini ada di daftar keluarga.`;
+                    }
+
+                    updateUser(sender, { rl: { pd } });
+                    await sock.sendMessage(remoteJid, { text: info }, { quoted: message });
+                }
+                break;
+
+            case 'sogok':
+                if (!userData.rl?.pd) return sock.sendMessage(remoteJid, { text: "Kamu belum punya pasangan." }, { quoted: message });
+                {
+                    const pd = userData.rl.pd;
+                    if (pd.uang < 500) return sock.sendMessage(remoteJid, { text: "Uangmu kurang untuk nyogok pasangan." }, { quoted: message });
+
+                    pd.uang -= 500;
+                    pd.hubungan += 10;
+                    const teks = `Kamu memberi hadiah mahal pada ${pd.nama}. Wajahnya langsung berseri, hubunganmu naik jadi ${pd.hubungan}! 💝`;
+
+                    updateUser(sender, { rl: { pd } });
+                    await sock.sendMessage(remoteJid, { text: teks }, { quoted: message });
+                }
+                break;
+
+            default:
                 const pd = userData.rl?.pd;
                 if (!pd) {
                     return sock.sendMessage(remoteJid, { text: "Anda belum memiliki pasangan.\nKetik `.pd cari <nama>` untuk mencari pasangan." }, { quoted: message });
@@ -86,7 +147,11 @@ async function handle(sock, messageInfo) {
                 const relationshipDays = msToDays(Date.now() - new Date(pd.umurpd).getTime());
                 let profileText = `💖 *Profil Pasanganmu* 💖\n\n`;
                 profileText += `👤 *Nama:* ${pd.nama}\n`;
-                profileText += `❤️ *Status:* ${pd.status} (selama ${relationshipDays} hari)\n\n`;
+                profileText += `❤️ *Status:* ${pd.status} (selama ${relationshipDays} hari)\n`;
+                profileText += `💰 *Uang:* ${pd.uang}\n`;
+                profileText += `🔥 *Horny:* ${pd.horny}\n`;
+                profileText += `🤰 *Kehamilan:* ${pd.kehamilan ? `Trimester ${pd.trimester}` : 'Tidak'}\n`;
+                profileText += `👶 *Anak:* ${pd.anak.length} anak\n\n`;
                 profileText += `🔗 *Info Karakter:* ${pd.mal_url || 'Tidak ada'}`;
                 
                 await sock.sendMessage(remoteJid, { image: { url: pd.img }, caption: profileText }, { quoted: message });
