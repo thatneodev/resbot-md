@@ -1,36 +1,18 @@
-/*
-⚠️ PERINGATAN:
-Script ini **TIDAK BOLEH DIPERJUALBELIKAN** dalam bentuk apa pun!
-
-╔══════════════════════════════════════════════╗
-║                🛠️ INFORMASI SCRIPT           ║
-╠══════════════════════════════════════════════╣
-║ 📦 Version   : 4.3.0
-║ 👨‍💻 Developer  : Azhari Creative              ║
-║ 🌐 Website    : https://autoresbot.com       ║
-║ 💻 GitHub  : github.com/autoresbot/resbot-md ║
-╚══════════════════════════════════════════════╝
-
-📌 Mulai 11 April 2025,
-Script **Autoresbot** resmi menjadi **Open Source** dan dapat digunakan secara gratis:
-🔗 https://autoresbot.com
-*/
-
-const moment = require("moment-timezone");
+ moment = require("moment-timezone");
 
 const CONNECTION = "pairing"; // qr atau pairing
 const OWNER_NAME = "Autoresbot";
-const NOMOR_BOT = ""; // 628xx nomor wa
+const NOMOR_BOT = "6282135214781"; // 628xx nomor wa
 const DESTINATION = "group"; // group , private, both
-const APIKEY = ""; // apikey dari autoresbot.com (paket apikey)
+const APIKEY = "autoresapikeys"; // apikey dari autoresbot.com (paket apikey)
 const RATE_LIMIT = 3000; // 3 detik/chat
 const SIMILARITY = true; // Pencarian kemiripan command (true, false)
 const MODE = "production"; // [production, development] (jangan di ubah kecuali anda developer)
 const VERSION = global.version; // don't edit
 
-const EMAIL = "autoresbot@gmail.com";
+const EMAIL = "";
 const REGION = "Indonesia";
-const WEBSITE = "autoresbot.com";
+const WEBSITE = "";
 const DATA_OWNER = ["628xxxxxxxxx"];
 
 // Konfiqurasi Chat
@@ -45,7 +27,7 @@ const BG_WELCOME2 = "https://api.autoresbot.com/api/maker/bg-default";
 // Konfiqurasi Panel
 const PANEL_URL = "";
 const PANEL_PLTA = "";
-const PANEL_DESCRIPTION = "Butuh Bantuan Hubungi 628xxxxx";
+const PANEL_DESCRIPTION = "Butuh Bantuan Hubungi 6283150958207";
 const PANEL_ID_EGG = 15;
 const PANEL_ID_LOCATION = 1;
 const PANEL_DEFAULT_DISK = 5120; // 5GB atau 0 (unlimited)
