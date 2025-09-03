@@ -8,12 +8,11 @@ const APIKEY = "autoresapikeys"; // apikey dari autoresbot.com (paket apikey)
 const RATE_LIMIT = 3000; // 3 detik/chat
 const SIMILARITY = true; // Pencarian kemiripan command (true, false)
 const MODE = "production"; // [production, development] (jangan di ubah kecuali anda developer)
-const VERSION = global.version; // don't edit
-
+const VERSION = "1.0";
 const EMAIL = "";
 const REGION = "Indonesia";
 const WEBSITE = "";
-const DATA_OWNER = ["628xxxxxxxxx"];
+const DATA_OWNER = ["257779910623376@lid"];
 
 // Konfiqurasi Chat
 const ANTI_CALL = false; // jika true (setiap yang nelpon pribadi akan di block)
