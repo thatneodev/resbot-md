@@ -83,6 +83,7 @@ async function handleDefault(sock, remoteJid, message, userData, messageInfo) {
     await response.sendTextMessage(sock, remoteJid, fullText, message);
 }
 
+// ... (Fungsi handleDate, handleGift, handleStatus, handleSeks, handleMakan, handleKerja, handleCari, handleClaim, handlePutus tetap sama)
 async function handleDate(sock, remoteJid, message, userData, sender) {
     const pd = userData.rl?.pd;
     const cost = 10000;
@@ -282,19 +283,24 @@ async function handlePutus(sock, remoteJid, message, userData, sender) {
 async function handle(sock, messageInfo) {
     const { remoteJid, sender, message, command, isGroup, fullText } = messageInfo;
     
-    // --- [PERBAIKAN UTAMA] ---
-    // Membersihkan `fullText` dari duplikasi nama command untuk mencegah error parsing
     let cleanFullText = fullText.trim();
     if (cleanFullText.toLowerCase().startsWith(command.toLowerCase())) {
         cleanFullText = cleanFullText.substring(command.length).trim();
     }
 
     const args = cleanFullText ? cleanFullText.split(/ +/) : [];
-    const subCommand = args.length > 0 ? args.shift().toLowerCase() : null;
+    let subCommand = args.length > 0 ? args.shift().toLowerCase() : null;
     const query = args.join(' ');
+
+    // --- [PERBAIKAN] ---
+    // Menangani kasus di mana sub-perintah adalah duplikasi dari perintah utama (misal: .pd .pd)
+    if ((subCommand === command.toLowerCase() || subCommand === `.${command.toLowerCase()}`) && !query) {
+        subCommand = null; // Reset agar dianggap sebagai panggilan default.
+    }
     // --- [AKHIR DARI PERBAIKAN] ---
 
     if (isProposalActive(remoteJid)) {
+        // ... (Logika proposal tetap sama)
         const currentProposal = getProposal(remoteJid);
         const { proposer, proposed } = currentProposal;
         if (sender === proposed) {
@@ -328,6 +334,7 @@ async function handle(sock, messageInfo) {
     if (!userData) return response.sendTextMessage(sock, remoteJid, "Anda belum terdaftar.", message);
 
     if (subCommand === 'nikah' || subCommand === 'lamar') {
+        // ... (Logika nikah tetap sama)
         if (!isGroup) return sock.sendMessage(remoteJid, { text: 'Fitur ini hanya di grup.' }, { quoted: message });
         if (userData.rl?.pd) return response.sendTextMessage(sock, remoteJid, "Anda sudah punya pasangan.", message);
         if (isUserInProposal(sender)) return response.sendTextMessage(sock, remoteJid, "Anda sedang terlibat dalam lamaran lain.", message);
