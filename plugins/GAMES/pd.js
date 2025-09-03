@@ -1,19 +1,3 @@
-Tentu saja. Anda ingin pembaruan signifikan pada fitur `.pd seks` agar lebih interaktif, dinamis, dan visual, tidak hanya sekadar teks.
-
-Saya akan meng-upgrade fitur ini dengan menambahkan:
-1.  **GIF Acak:** Setiap kali perintah digunakan, bot akan mengirimkan GIF ciuman anime yang romantis dan acak.
-2.  **Skenario Bervariasi:** Teks yang menyertai GIF tidak akan monoton, melainkan dipilih secara acak dari beberapa skenario yang berbeda.
-3.  **Hasil Acak:** Peningkatan statistik (seperti hubungan dan XP) akan memiliki rentang acak, sehingga setiap interaksi terasa unik.
-
-Ini akan membuat fitur tersebut jauh lebih menarik untuk digunakan berulang kali.
-
----
-
-### Kode Lengkap `pd.js` (dengan Fitur `seks` yang Ditingkatkan)
-
-Berikut adalah kode lengkap dan finalnya. Cukup ganti seluruh isi file `plugins/GAMES/pd.js` Anda dengan kode di bawah ini.
-
-```javascript
 // --- Core & Library Imports ---
 const mess = require('../../handle/mess');
 const response = require('../../handle/respon');
@@ -417,4 +401,3 @@ module.exports = {
     OnlyPremium: false,
     OnlyOwner: false
 };
-```
