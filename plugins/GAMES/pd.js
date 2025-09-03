@@ -2,7 +2,7 @@
 const mess = require('../../handle/mess');
 const response = require('../../handle/respon');
 const { findUser, updateUser, isOwner, isPremiumUser } = require('../../lib/users');
-const { searchCharacter } = require('../../lib/jikan'); // Pastikan path ini benar dan mengarah ke file pencarian karakter
+const { searchCharacter } = require('../../lib/jikan'); // Pastikan path ini benar
 const { getClaimantInfo, claimCharacter, releaseCharacter } = require('../../lib/claimedCharacters');
 const axios = require('axios');
 
@@ -98,7 +98,7 @@ async function handleDate(sock, remoteJid, message, userData, sender) {
     else if (roll < 0.9) { hub_change = 5; xp_change = 5; responseText = `😊 Kalian menikmati kencan yang menyenangkan.\n\n❤️ Hubungan +${hub_change}\n⭐ XP +${xp_change}`; }
     else { hub_change = -5; responseText = `😥 Sepertinya terjadi sedikit kesalahpahaman.\n\n❤️ Hubungan ${hub_change}`; }
     
-    pd.hubungan = Math.min(100, (pd.hubungan || 50) + hub_change);
+    pd.hubungan = Math.min(100, Math.max(0, (pd.hubungan || 50) + hub_change));
     pd.xp = (pd.xp || 0) + xp_change;
     updateUser(sender, { money: userData.money, rl: { pd } });
     await response.sendTextMessage(sock, remoteJid, responseText, message);
@@ -160,7 +160,7 @@ async function handleSeks(sock, remoteJid, message, userData, sender) {
     const xp_change = Math.floor(Math.random() * 10) + 15; // 15-24
 
     pd.horny = Math.min(100, (pd.horny || 0) + 50);
-    pd.food = (pd.food || 100) - 15;
+    pd.food = Math.max(0, (pd.food || 100) - 15);
     pd.xp = (pd.xp || 0) + xp_change;
     pd.hubungan = Math.min(100, (pd.hubungan || 50) + hub_change);
     
@@ -204,7 +204,7 @@ async function handleKerja(sock, remoteJid, message, userData, sender) {
     if ((pd.food || 100) < 15) return response.sendTextMessage(sock, remoteJid, `${pd.nama} terlalu lapar untuk bekerja!`, message);
     const earned = Math.floor(Math.random() * 500) + 500;
     pd.uang = (pd.uang || 0) + earned;
-    pd.food -= 15;
+    pd.food = Math.max(0, pd.food - 15);
     updateUser(sender, { rl: { pd } });
     await response.sendTextMessage(sock, remoteJid, `${pd.nama} bekerja keras dan mendapatkan Rp${earned.toLocaleString('id-ID')}! 💼`, message);
 }
@@ -217,7 +217,7 @@ async function handleCari(sock, remoteJid, message, query) {
     
     if (!char) return response.sendTextMessage(sock, remoteJid, `❌ Karakter "${query}" tidak ditemukan. Coba nama lain.`, message);
     
-    const claimantJid = getClaimantInfo(char.id); // Menggunakan char.id yang sudah distandarisasi
+    const claimantJid = getClaimantInfo(char.id);
     let statusText = `✅ *Status:* Tersedia`, claimSuggestion = `\n\nKetik \`.pd claim ${char.name}\` untuk jadi pasanganmu!`;
     
     if (claimantJid) {
@@ -249,18 +249,8 @@ async function handleClaim(sock, remoteJid, message, query, userData, sender) {
     
     claimCharacter(charToClaim.id, sender);
     const newPartner = {
-        nama: charToClaim.name,
-        status: 'Pacaran',
-        umurpd: new Date().toISOString(),
-        hubungan: 50,
-        level: 1,
-        xp: 0,
-        food: 100,
-        uang: 1000,
-        img: charToClaim.image_url,
-        char_id: charToClaim.id, // ID karakter dari sumbernya
-        horny: 0,
-        url: charToClaim.url
+        nama: charToClaim.name, status: 'Pacaran', umurpd: new Date().toISOString(), hubungan: 50, level: 1, xp: 0, food: 100, uang: 1000,
+        img: charToClaim.image_url, char_id: charToClaim.id, horny: 0, url: charToClaim.url
     };
     updateUser(sender, { rl: { pd: newPartner } });
     await response.sendTextMessage(sock, remoteJid, `Selamat! Anda sekarang berpacaran dengan *${charToClaim.name}*.`, message);
@@ -270,9 +260,8 @@ async function handlePutus(sock, remoteJid, message, userData, sender) {
     const partner = userData.rl?.pd;
     if (!partner) return response.sendTextMessage(sock, remoteJid, "Anda tidak punya pasangan.", message);
     
-    if (partner.char_id) { // Jika pasangan adalah karakter fiksi
-        releaseCharacter(partner.char_id);
-    } else if (partner.jid) { // Jika pasangan adalah user lain
+    if (partner.char_id) { releaseCharacter(partner.char_id); }
+    else if (partner.jid) {
         const [partnerId, partnerData] = findUser(partner.jid) || [null, null];
         if (partnerData && partnerData.rl?.pd) {
             delete partnerData.rl.pd;
@@ -293,12 +282,18 @@ async function handlePutus(sock, remoteJid, message, userData, sender) {
 async function handle(sock, messageInfo) {
     const { remoteJid, sender, message, command, isGroup, fullText } = messageInfo;
     
-    // [PERBAIKAN] Parsing argumen dan query yang lebih andal untuk nama dengan spasi
-    const args = fullText.trim().split(/ +/);
-    const subCommand = args.length > 0 ? args.shift().toLowerCase() : null; // Ambil kata pertama sebagai sub-perintah
-    const query = args.join(' '); // Gabungkan semua sisa kata menjadi query
+    // --- [PERBAIKAN UTAMA] ---
+    // Membersihkan `fullText` dari duplikasi nama command untuk mencegah error parsing
+    let cleanFullText = fullText.trim();
+    if (cleanFullText.toLowerCase().startsWith(command.toLowerCase())) {
+        cleanFullText = cleanFullText.substring(command.length).trim();
+    }
 
-    // Logika untuk menangani lamaran yang sedang aktif
+    const args = cleanFullText ? cleanFullText.split(/ +/) : [];
+    const subCommand = args.length > 0 ? args.shift().toLowerCase() : null;
+    const query = args.join(' ');
+    // --- [AKHIR DARI PERBAIKAN] ---
+
     if (isProposalActive(remoteJid)) {
         const currentProposal = getProposal(remoteJid);
         const { proposer, proposed } = currentProposal;
@@ -332,7 +327,6 @@ async function handle(sock, messageInfo) {
     const [userId, userData] = findUser(sender) || [null, null];
     if (!userData) return response.sendTextMessage(sock, remoteJid, "Anda belum terdaftar.", message);
 
-    // Logika untuk memulai lamaran baru
     if (subCommand === 'nikah' || subCommand === 'lamar') {
         if (!isGroup) return sock.sendMessage(remoteJid, { text: 'Fitur ini hanya di grup.' }, { quoted: message });
         if (userData.rl?.pd) return response.sendTextMessage(sock, remoteJid, "Anda sudah punya pasangan.", message);
@@ -363,7 +357,6 @@ async function handle(sock, messageInfo) {
         return sock.sendMessage(remoteJid, { text: waitingMessage, mentions: [sender, proposedJid] }, { quoted: message });
     }
     
-    // Router untuk semua sub-perintah lainnya
     try {
         const commandMap = {
             'help': () => handleHelp(sock, remoteJid, message),
