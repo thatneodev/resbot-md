@@ -7,11 +7,13 @@ const msToDays = (ms) => Math.floor(ms / (1000 * 60 * 60 * 24));
 async function handle(sock, messageInfo) {
     const { remoteJid, sender, message, text } = messageInfo;
     
-    // Perbaikan parsing argumen: Asumsikan text adalah pesan penuh seperti ".pd cari Naruto"
-    // Hilangkan prefix dan command, lalu split
+    // Perbaikan parsing argumen: Handle jika text undefined atau null
+    const safeText = text || '';
+    
+    // Asumsikan prefix dan command
     const prefix = '.'; // Sesuaikan jika prefix berbeda
     const command = 'pd'; // Atau 'pasangan'
-    let argsText = text.trim().startsWith(prefix + command) ? text.trim().slice(prefix.length + command.length).trim() : '';
+    let argsText = safeText.trim().startsWith(prefix + command) ? safeText.trim().slice(prefix.length + command.length).trim() : '';
     const args = argsText.split(/ +/);
     const subCommand = args[0] ? args[0].toLowerCase() : null;
     const query = args.slice(1).join(' ');
@@ -180,7 +182,7 @@ async function handle(sock, messageInfo) {
                     pd.uang -= 500;
                     pd.hubungan = Math.min((pd.hubungan || 50) + 10, 100);
                     pd.xp += 10;
-                    const teks = `Kamu memberi hadiah mahal pada ${pd.nama}. Wajahnya langsung berseri, hubunganmu naik jadi ${pd.hubungan}! 💝`;
+                    let teks = `Kamu memberi hadiah mahal pada ${pd.nama}. Wajahnya langsung berseri, hubunganmu naik jadi ${pd.hubungan}! 💝`;
 
                     // Level up check
                     if (pd.xp >= 100) {
@@ -203,7 +205,7 @@ async function handle(sock, messageInfo) {
                     pd.food = Math.min(pd.food + 20, 100);
                     pd.hubungan = Math.min((pd.hubungan || 50) + 2, 100);
                     pd.xp += 5;
-                    const teks = `Kamu memberi makan ${pd.nama}. Food naik jadi ${pd.food}! 🍲 Hubungan +2.`;
+                    let teks = `Kamu memberi makan ${pd.nama}. Food naik jadi ${pd.food}! 🍲 Hubungan +2.`;
 
                     // Level up check
                     if (pd.xp >= 100) {
@@ -227,7 +229,7 @@ async function handle(sock, messageInfo) {
                     pd.uang += earned;
                     pd.food -= 10;
                     pd.xp += 15;
-                    const teks = `${pd.nama} bekerja keras dan dapat ${earned} uang! 💼 Uang sekarang: ${pd.uang}.`;
+                    let teks = `${pd.nama} bekerja keras dan dapat ${earned} uang! 💼 Uang sekarang: ${pd.uang}.`;
 
                     // Level up check
                     if (pd.xp >= 100) {
