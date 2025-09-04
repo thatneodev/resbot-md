@@ -2,7 +2,7 @@
 const mess = require('../../handle/mess');
 const response = require('../../handle/respon');
 const { findUser, updateUser, isOwner, isPremiumUser } = require('../../lib/users');
-const { searchCharacter } = require('../../lib/jikan'); // Pastikan path ini benar
+const { searchCharacter } = require('../../lib/jikan');
 const { getClaimantInfo, claimCharacter, releaseCharacter } = require('../../lib/claimedCharacters');
 const axios = require('axios');
 
@@ -146,7 +146,7 @@ async function handleSeks(sock, remoteJid, message, userData, sender) {
 
     let gifUrl = '';
     try {
-        const result = await axios.get('https://api.waifu.pics/sfw/kiss  ');
+        const result = await axios.get('https://api.waifu.pics/sfw/kiss');
         gifUrl = result.data.url;
     } catch (e) { console.error("Gagal mengambil GIF:", e); }
     const gifBuffer = await urlToBuffer(gifUrl);
@@ -278,30 +278,36 @@ async function handlePutus(sock, remoteJid, message, userData, sender) {
 
 
 // ===================================================
-// FUNGSI UTAMA (MAIN HANDLE)
+// FUNGSI UTAMA (MAIN HANDLE) - SUDAH DIPERBAIKI
 // ===================================================
 async function handle(sock, messageInfo) {
     const { remoteJid, sender, message, command, isGroup, fullText } = messageInfo;
     
-    let cleanFullText = fullText.trim();
-    if (cleanFullText.toLowerCase().startsWith(command.toLowerCase())) {
-        cleanFullText = cleanFullText.substring(command.length).trim();
+    // --- [PERBAIKAN UTAMA] ---
+    // Parsing perintah dengan benar, mengatasi masalah .pd .pd dan .pd help
+    const parts = fullText.trim().split(/\s+/);
+    const commandToken = parts[0].replace(/^[^a-zA-Z0-9]+/, '').toLowerCase();
+    
+    // Pastikan ini adalah perintah yang valid
+    if (commandToken !== command.toLowerCase()) {
+        return response.sendTextMessage(sock, remoteJid, `Perintah tidak valid.`, message);
     }
-
-    const args = cleanFullText ? cleanFullText.split(/ +/) : [];
+    
+    // Ambil argumen setelah perintah
+    const args = parts.slice(1);
     let subCommand = args.length > 0 ? args.shift().toLowerCase() : null;
     const query = args.join(' ');
-
-    // --- [PERBAIKAN] ---
-    // Menangani kasus di mana sub-perintah adalah duplikasi dari perintah utama (misal: .pd .pd, .pd pd, dll)
-    const cleanSubCommand = subCommand ? subCommand.replace(/^\.+/, '').toLowerCase() : '';
-    if (cleanSubCommand === command.toLowerCase() && !query) {
-        subCommand = null; // Reset agar dianggap sebagai panggilan default.
+    
+    // Perbaiki kasus seperti ".pd .pd" atau ".pd pd"
+    if (subCommand) {
+        const cleanSubCmd = subCommand.replace(/^[^a-zA-Z0-9]+/, '').toLowerCase();
+        if (cleanSubCmd === command.toLowerCase() && !query) {
+            subCommand = null;
+        }
     }
-    // --- [AKHIR DARI PERBAIKAN] ---
+    // --- [AKHIR PERBAIKAN] ---
 
     if (isProposalActive(remoteJid)) {
-        // ... (Logika proposal tetap sama)
         const currentProposal = getProposal(remoteJid);
         const { proposer, proposed } = currentProposal;
         if (sender === proposed) {
@@ -335,7 +341,6 @@ async function handle(sock, messageInfo) {
     if (!userData) return response.sendTextMessage(sock, remoteJid, "Anda belum terdaftar.", message);
 
     if (subCommand === 'nikah' || subCommand === 'lamar') {
-        // ... (Logika nikah tetap sama)
         if (!isGroup) return sock.sendMessage(remoteJid, { text: 'Fitur ini hanya di grup.' }, { quoted: message });
         if (userData.rl?.pd) return response.sendTextMessage(sock, remoteJid, "Anda sudah punya pasangan.", message);
         if (isUserInProposal(sender)) return response.sendTextMessage(sock, remoteJid, "Anda sedang terlibat dalam lamaran lain.", message);
@@ -378,6 +383,7 @@ async function handle(sock, messageInfo) {
             'makan': () => handleMakan(sock, remoteJid, message, userData, sender),
             'kerja': () => handleKerja(sock, remoteJid, message, userData, sender),
         };
+        
         if (subCommand && commandMap[subCommand]) {
             await commandMap[subCommand]();
         } else if (!subCommand) {
