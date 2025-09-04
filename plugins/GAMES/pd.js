@@ -146,7 +146,7 @@ async function handleSeks(sock, remoteJid, message, userData, sender) {
 
     let gifUrl = '';
     try {
-        const result = await axios.get('https://api.waifu.pics/sfw/kiss');
+        const result = await axios.get('https://api.waifu.pics/sfw/kiss  ');
         gifUrl = result.data.url;
     } catch (e) { console.error("Gagal mengambil GIF:", e); }
     const gifBuffer = await urlToBuffer(gifUrl);
@@ -293,8 +293,9 @@ async function handle(sock, messageInfo) {
     const query = args.join(' ');
 
     // --- [PERBAIKAN] ---
-    // Menangani kasus di mana sub-perintah adalah duplikasi dari perintah utama (misal: .pd .pd)
-    if ((subCommand === command.toLowerCase() || subCommand === `.${command.toLowerCase()}`) && !query) {
+    // Menangani kasus di mana sub-perintah adalah duplikasi dari perintah utama (misal: .pd .pd, .pd pd, dll)
+    const cleanSubCommand = subCommand ? subCommand.replace(/^\.+/, '').toLowerCase() : '';
+    if (cleanSubCommand === command.toLowerCase() && !query) {
         subCommand = null; // Reset agar dianggap sebagai panggilan default.
     }
     // --- [AKHIR DARI PERBAIKAN] ---
